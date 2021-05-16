@@ -28,7 +28,7 @@ final class PodcastList: UICollectionViewController {
         searchController.obscuresBackgroundDuringPresentation = false
         navigationItem.searchController = searchController
         
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .systemBackground
         collectionView.dataSource = dataSource
         
         searchController.searchBar

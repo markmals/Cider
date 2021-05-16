@@ -19,6 +19,8 @@
 		DBB65DC7264F8CC200D0E6DA /* PodcastList.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBB65DC6264F8CC200D0E6DA /* PodcastList.swift */; };
 		DBB65DC9264F8CE200D0E6DA /* PodcastManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBB65DC8264F8CE200D0E6DA /* PodcastManager.swift */; };
 		DBB65DCD264F939D00D0E6DA /* Cider in Frameworks */ = {isa = PBXBuildFile; productRef = DBB65DCC264F939D00D0E6DA /* Cider */; };
+		DBE5AD0F26511A8E001F193E /* CombineCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = DBE5AD0E26511A8E001F193E /* CombineCocoa */; };
+		DBE5AD1226511C85001F193E /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = DBE5AD1126511C85001F193E /* SnapKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,7 +45,9 @@
 			files = (
 				DBB65DCD264F939D00D0E6DA /* Cider in Frameworks */,
 				DBB65DC3264F878300D0E6DA /* Resty in Frameworks */,
+				DBE5AD0F26511A8E001F193E /* CombineCocoa in Frameworks */,
 				DBB65DC0264F877A00D0E6DA /* Nuke in Frameworks */,
+				DBE5AD1226511C85001F193E /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,6 +132,8 @@
 				DBB65DBF264F877A00D0E6DA /* Nuke */,
 				DBB65DC2264F878300D0E6DA /* Resty */,
 				DBB65DCC264F939D00D0E6DA /* Cider */,
+				DBE5AD0E26511A8E001F193E /* CombineCocoa */,
+				DBE5AD1126511C85001F193E /* SnapKit */,
 			);
 			productName = PodcastExample;
 			productReference = DBB65DA2264F838300D0E6DA /* PodcastExample.app */;
@@ -159,6 +165,8 @@
 			packageReferences = (
 				DBB65DBE264F877A00D0E6DA /* XCRemoteSwiftPackageReference "Nuke" */,
 				DBB65DC1264F878300D0E6DA /* XCRemoteSwiftPackageReference "Resty" */,
+				DBE5AD0D26511A8E001F193E /* XCRemoteSwiftPackageReference "CombineCocoa" */,
+				DBE5AD1026511C85001F193E /* XCRemoteSwiftPackageReference "SnapKit" */,
 			);
 			productRefGroup = DBB65DA3264F838300D0E6DA /* Products */;
 			projectDirPath = "";
@@ -408,6 +416,22 @@
 				minimumVersion = 0.2.11;
 			};
 		};
+		DBE5AD0D26511A8E001F193E /* XCRemoteSwiftPackageReference "CombineCocoa" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/CombineCommunity/CombineCocoa";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.2.2;
+			};
+		};
+		DBE5AD1026511C85001F193E /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -424,6 +448,16 @@
 		DBB65DCC264F939D00D0E6DA /* Cider */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Cider;
+		};
+		DBE5AD0E26511A8E001F193E /* CombineCocoa */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DBE5AD0D26511A8E001F193E /* XCRemoteSwiftPackageReference "CombineCocoa" */;
+			productName = CombineCocoa;
+		};
+		DBE5AD1126511C85001F193E /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DBE5AD1026511C85001F193E /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

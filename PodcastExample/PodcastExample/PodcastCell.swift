@@ -33,7 +33,11 @@ final class PodcastCell: UIStackView, ContentConfigurable {
         self.axis = .horizontal
         self.alignment = .center
         self.spacing = 15
-        self.backgroundColor = .white
+        self.backgroundColor = UIColor { traits in
+            traits.userInterfaceStyle == .dark ?
+                .secondarySystemBackground :
+                .systemBackground
+        }
         
         labelStack.addArrangedSubview(nameLabel)
         labelStack.addArrangedSubview(creatorLabel)
@@ -42,11 +46,11 @@ final class PodcastCell: UIStackView, ContentConfigurable {
         self.addArrangedSubview(labelStack)
         
         nameLabel.snp.makeConstraints {
-            $0.trailing == labelStack.snp.trailing - 15
+            $0.trailing == labelStack - 15
         }
         
         creatorLabel.snp.makeConstraints {
-            $0.trailing == nameLabel.snp.trailing
+            $0.trailing == nameLabel
         }
     }
     
