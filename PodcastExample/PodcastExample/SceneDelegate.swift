@@ -9,13 +9,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         options connectionOptions: UIScene.ConnectionOptions
     ) {
         let podcastList = PodcastList()
-        let navigationController = UINavigationController()
-        navigationController.setViewControllers([podcastList], animated: false)
-        navigationController.view.backgroundColor = .white
-        navigationController.navigationBar.prefersLargeTitles = true
+        let navigationController = UINavigationController().configure {
+            $0.navigationBar.prefersLargeTitles = true
+            $0.setViewControllers([podcastList], animated: false)
+        }
         
-        let window = UIWindow(windowScene: scene as! UIWindowScene)
-        window.rootViewController = navigationController
+        let window = UIWindow(windowScene: scene as! UIWindowScene).configure {
+            $0.rootViewController = navigationController
+        }
         
         self.window = window
         window.makeKeyAndVisible()

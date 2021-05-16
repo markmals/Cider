@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "CombineCocoa",
+        "repositoryURL": "https://github.com/CombineCommunity/CombineCocoa",
+        "state": {
+          "branch": null,
+          "revision": "749c16693b3a6fa1af2b95256fda734e7ec2258b",
+          "version": "0.2.2"
+        }
+      },
+      {
         "package": "Nuke",
         "repositoryURL": "https://github.com/kean/Nuke",
         "state": {
@@ -17,6 +26,15 @@
           "branch": null,
           "revision": "17c867457b58aaf1c354cc30f34f6b2e8e770274",
           "version": "0.2.11"
+        }
+      },
+      {
+        "package": "SnapKit",
+        "repositoryURL": "https://github.com/SnapKit/SnapKit",
+        "state": {
+          "branch": "develop",
+          "revision": "80cc5696a4862be87b49bdda83b3e6514b10fb16",
+          "version": null
         }
       }
     ]

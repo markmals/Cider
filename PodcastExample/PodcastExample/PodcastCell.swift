@@ -1,49 +1,53 @@
 import UIKit
+import SnapKit
 import Cider
 
 final class PodcastCell: UIStackView, ContentConfigurable {
-    private let nameLabel = UILabel()
-    private let creatorLabel = UILabel()
-    private let labelStack = UIStackView()
-    private let artworkImage = UIImageView()
+    private let nameLabel = UILabel().configure {
+        $0.lineBreakMode = .byTruncatingTail
+        $0.numberOfLines = 2
+        $0.font = .boldSystemFont(ofSize: $0.font.pointSize)
+    }
+    
+    private let creatorLabel = UILabel().configure {
+        $0.textColor = .secondaryLabel
+    }
+    
+    private let labelStack = UIStackView().configure {
+        $0.axis = .vertical
+        $0.alignment = .leading
+        $0.distribution = .equalSpacing
+        $0.isLayoutMarginsRelativeArrangement = true
+        $0.spacing = 5
+    }
+    
+    private let artworkImage = UIImageView().configure {
+        $0.contentMode = .scaleAspectFit
+        $0.snp.makeConstraints { $0.width.height == 88 }
+    }
     
     init(_ configuration: Podcast) {
         self.configuration = configuration
         super.init(frame: .zero)
         
-        labelStack.addArrangedSubview(nameLabel)
-        labelStack.addArrangedSubview(creatorLabel)
-        self.addArrangedSubview(artworkImage)
-        self.addArrangedSubview(labelStack)
-        
-        nameLabel.lineBreakMode = .byTruncatingTail
-        nameLabel.numberOfLines = 2
-        nameLabel.font = .boldSystemFont(ofSize: nameLabel.font.pointSize)
-        nameLabel.layout {
-            $0.trailingAnchor == labelStack.trailingAnchor - 20
-        }
-        
-        creatorLabel.textColor = .secondaryLabel
-        
-        labelStack.axis = .vertical
-        labelStack.alignment = .leading
-        labelStack.distribution = .equalSpacing
-        labelStack.isLayoutMarginsRelativeArrangement = true
-        labelStack.spacing = 5
-        labelStack.layout {
-            $0.trailingAnchor == self.trailingAnchor
-        }
-        
-        artworkImage.contentMode = .scaleAspectFit
-        artworkImage.layout {
-            $0.widthAnchor == 88
-            $0.heightAnchor == 88
-        }
-        
         self.axis = .horizontal
         self.alignment = .center
         self.spacing = 15
         self.backgroundColor = .white
+        
+        labelStack.addArrangedSubview(nameLabel)
+        labelStack.addArrangedSubview(creatorLabel)
+        
+        self.addArrangedSubview(artworkImage)
+        self.addArrangedSubview(labelStack)
+        
+        nameLabel.snp.makeConstraints {
+            $0.trailing == labelStack.snp.trailing - 15
+        }
+        
+        creatorLabel.snp.makeConstraints {
+            $0.trailing == nameLabel.snp.trailing
+        }
     }
     
     public var configuration: UIContentConfiguration {
