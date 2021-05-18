@@ -1,6 +1,18 @@
 import UIKit
 import SnapKit
 
+extension UIView {
+    public var layout: ConstraintViewDSL {
+        self.snp
+    }
+}
+
+extension ConstraintViewDSL {
+    public func constraints(using closure: (ConstraintMaker) -> Void) {
+        self.makeConstraints(closure)
+    }
+}
+
 extension ConstraintMaker {
     public func frame(width: CGFloat? = nil, height: CGFloat? = nil) {
         if let width = width {

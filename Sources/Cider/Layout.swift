@@ -74,7 +74,7 @@ public func <=<Anchor: AnyObject>(lhs: NSLayoutAnchor<Anchor>, rhs: NSLayoutAnch
 }
 
 extension UIView {
-    public func layout(@NSLayoutConstraint.ConstraintBuilder using closure: (UIView) -> [NSLayoutConstraint]) {
+    public func constraints(@NSLayoutConstraint.ConstraintBuilder using closure: (UIView) -> [NSLayoutConstraint]) {
         translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate(closure(self))
     }

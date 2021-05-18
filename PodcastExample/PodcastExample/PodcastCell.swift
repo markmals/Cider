@@ -23,7 +23,7 @@ final class PodcastCell: UIStackView, ContentConfigurable {
     
     private let artworkImage = UIImageView().configure {
         $0.contentMode = .scaleAspectFit
-        $0.snp.makeConstraints { $0.frame(size: 88) }
+        $0.layout.constraints { $0.frame(size: 88) }
     }
     
     init(_ configuration: Podcast) {
@@ -45,11 +45,11 @@ final class PodcastCell: UIStackView, ContentConfigurable {
         self.addArrangedSubview(artworkImage)
         self.addArrangedSubview(labelStack)
         
-        nameLabel.snp.makeConstraints {
+        nameLabel.layout.constraints {
             $0.trailing == labelStack - 15
         }
         
-        creatorLabel.snp.makeConstraints {
+        creatorLabel.layout.constraints {
             $0.trailing == nameLabel
         }
     }
