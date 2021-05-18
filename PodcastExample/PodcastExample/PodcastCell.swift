@@ -4,13 +4,15 @@ import Cider
 
 final class PodcastCell: UIStackView, ContentConfigurable {
     private let nameLabel = UILabel().configure {
-        $0.lineBreakMode = .byTruncatingTail
+        $0.font = .preferredFont(forTextStyle: .headline)
         $0.numberOfLines = 2
-        $0.font = .boldSystemFont(ofSize: $0.font.pointSize)
+        $0.lineBreakMode = .byTruncatingTail
     }
     
     private let creatorLabel = UILabel().configure {
+        $0.font = .preferredFont(forTextStyle: .subheadline)
         $0.textColor = .secondaryLabel
+        $0.lineBreakMode = .byTruncatingTail
     }
     
     private let labelStack = UIStackView().configure {
