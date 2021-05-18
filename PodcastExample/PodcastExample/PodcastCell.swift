@@ -23,7 +23,7 @@ final class PodcastCell: UIStackView, ContentConfigurable {
     
     private let artworkImage = UIImageView().configure {
         $0.contentMode = .scaleAspectFit
-        $0.layout.frame(size: 88)
+        $0.layout.frame(88)
     }
     
     init(_ configuration: Podcast) {

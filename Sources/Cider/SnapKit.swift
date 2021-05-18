@@ -18,7 +18,7 @@ extension ConstraintViewDSL {
         }
     }
     
-    public func frame(size: CGFloat? = nil) {
+    public func frame(_ size: CGFloat? = nil) {
         self.constraints {
             $0.frame(size: size)
         }
