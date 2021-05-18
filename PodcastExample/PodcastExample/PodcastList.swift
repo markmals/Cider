@@ -4,14 +4,11 @@ import CombineCocoa
 import Cider
 
 final class PodcastList: UICollectionViewController {
-    typealias Section = UICollectionViewController.SingleSection
+    public enum Section: Int { case main, one }
     typealias DataSource = UICollectionViewDiffableDataSource<Section, Podcast>
     
     private let searchController = UISearchController()
-    
     private let podcasts = PodcastManager()
-    private var cancellables = Set<AnyCancellable>()
-    
     private lazy var dataSource = DataSource(
         collectionView: collectionView,
         cellType: UICollectionViewListCell.self
@@ -37,7 +34,11 @@ final class PodcastList: UICollectionViewController {
             .flatMap { self.podcasts.search(for: $0) }
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: update(with:))
-            .store(in: &cancellables)
+            .map { podcasts in
+                NSDiffableDataSourceSnapshot<Section, Podcast>()
+                    .appending(sections: [.one])
+                    .appending(items: podcasts)
+            }
+            .subscribe(dataSource.subscriber)
     }
 }

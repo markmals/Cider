@@ -1,16 +1,26 @@
 import UIKit
 
 @available(iOS 14.0, *)
-extension UICollectionViewDiffableDataSource where SectionIdentifierType == UICollectionViewController.SingleSection, ItemIdentifierType: UIContentConfiguration {
+extension UICollectionViewDiffableDataSource where ItemIdentifierType: UIContentConfiguration {
     public convenience init<Cell: UICollectionViewCell>(
         collectionView: UICollectionView,
         cellType: Cell.Type
     ) {
-        self.init(collectionView: collectionView) { collectionView, indexPath, todo in
+        // FIXME: I don't have any idea how this compiles without specifying the `SectionIdentifierType`
+        // None of the informaion here conveys the concrete type of the `SectionIdentifierType`
+        
+        // Yet, I can still apply a Snapshot<AnyArbitrarySectionIdentifierType> to a data
+        // source created with this init.
+        
+        // Why... How... What if I need to use a method on UICollectionViewDiffableDataSource
+        // that needs to know the SectionIdentifierType?
+        
+        // Where do I use the SectionIdentifierType? Can I configure sections to display differently? Where?
+        self.init(collectionView: collectionView) { collectionView, indexPath, data in
             collectionView.dequeueConfiguredReusableCell(
                 using: UICollectionView.CellRegistration<Cell, ItemIdentifierType>(),
                 for: indexPath,
-                item: todo
+                item: data
             )
         }
     }
@@ -41,19 +51,6 @@ extension UICollectionView.CellRegistration where Item: UIContentConfiguration {
         self.init { cell, _, data in
             cell.contentConfiguration = data
         }
-    }
-}
-
-extension UICollectionViewController {
-    public enum SingleSection: Int { case main }
-}
-
-extension UICollectionViewController {
-    public func update<Data: Hashable>(with data: [Data]) {
-        var snapshot = NSDiffableDataSourceSnapshot<SingleSection, Data>()
-        snapshot.appendSections([.main])
-        snapshot.appendItems(data)
-        (collectionView.dataSource as? UICollectionViewDiffableDataSource<SingleSection, Data>)?.apply(snapshot)
     }
 }
 
