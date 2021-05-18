@@ -23,7 +23,7 @@ final class PodcastCell: UIStackView, ContentConfigurable {
     
     private let artworkImage = UIImageView().configure {
         $0.contentMode = .scaleAspectFit
-        $0.layout.constraints { $0.frame(size: 88) }
+        $0.layout.frame(size: 88)
     }
     
     init(_ configuration: Podcast) {
@@ -33,11 +33,10 @@ final class PodcastCell: UIStackView, ContentConfigurable {
         self.axis = .horizontal
         self.alignment = .center
         self.spacing = 15
-        self.backgroundColor = UIColor { traits in
-            traits.userInterfaceStyle == .dark ?
-                .secondarySystemBackground :
-                .systemBackground
-        }
+        self.backgroundColor = UIColor(
+            light: .systemBackground,
+            dark: .secondarySystemBackground
+        )
         
         labelStack.addArrangedSubview(nameLabel)
         labelStack.addArrangedSubview(creatorLabel)

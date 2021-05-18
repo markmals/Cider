@@ -11,6 +11,58 @@ extension ConstraintViewDSL {
     public func constraints(using closure: (ConstraintMaker) -> Void) {
         self.makeConstraints(closure)
     }
+    
+    public func frame(width: CGFloat? = nil, height: CGFloat? = nil) {
+        self.constraints {
+            $0.frame(width: width, height: height)
+        }
+    }
+    
+    public func frame(size: CGFloat? = nil) {
+        self.constraints {
+            $0.frame(size: size)
+        }
+    }
+    
+    public func frame(
+        minWidth: CGFloat? = nil,
+        maxWidth: CGFloat? = nil,
+        minHeight: CGFloat? = nil,
+        maxHeight: CGFloat? = nil
+    ) {
+        self.constraints {
+            $0.frame(
+                minWidth: minWidth,
+                maxWidth: maxWidth,
+                minHeight: minHeight,
+                maxHeight: maxHeight
+            )
+        }
+    }
+    
+    public func margins(_ insets: UIEdgeInsets) {
+        self.constraints {
+            $0.margins(insets)
+        }
+    }
+    
+    public func margins(_ length: CGFloat) {
+        self.constraints {
+            $0.margins(length)
+        }
+    }
+    
+    public func margins(_ edges: NSDirectionalRectEdge = .all, _ length: CGFloat? = nil) {
+        self.constraints {
+            $0.margins(edges, length)
+        }
+    }
+    
+    public func pin(to pinningView: UIView, insets: UIEdgeInsets = .zero) {
+        self.constraints {
+            $0.pin(to: pinningView, insets: insets)
+        }
+    }
 }
 
 extension ConstraintMaker {
@@ -53,15 +105,15 @@ extension ConstraintMaker {
         }
     }
     
-    public func padding(_ insets: UIEdgeInsets) {
+    public func margins(_ insets: UIEdgeInsets) {
         self.margins == insets
     }
     
-    public func padding(_ length: CGFloat) {
+    public func margins(_ length: CGFloat) {
         self.margins == length
     }
     
-    func padding(_ edges: NSDirectionalRectEdge = .all, _ length: CGFloat? = nil) {
+    public func margins(_ edges: NSDirectionalRectEdge = .all, _ length: CGFloat? = nil) {
         if let length = length {
             switch edges {
             case .all: self.margins == length
@@ -72,6 +124,13 @@ extension ConstraintMaker {
             default: break
             }
         }
+    }
+    
+    public func pin(to pinningView: UIView, insets: UIEdgeInsets = .zero) {
+        self.top == pinningView.layout.top + insets.top
+        self.bottom == pinningView.layout.bottom - insets.bottom
+        self.left == pinningView.layout.left + insets.left
+        self.right == pinningView.layout.right - insets.right
     }
 }
 
