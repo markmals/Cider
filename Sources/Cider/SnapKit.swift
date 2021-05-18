@@ -20,7 +20,7 @@ extension ConstraintViewDSL {
     
     public func frame(_ size: CGFloat? = nil) {
         self.constraints {
-            $0.frame(size: size)
+            $0.frame(size)
         }
     }
     
@@ -76,7 +76,7 @@ extension ConstraintMaker {
         }
     }
     
-    public func frame(size: CGFloat? = nil) {
+    public func frame(_ size: CGFloat? = nil) {
         if let size = size {
             self.size == size
         }
