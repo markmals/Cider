@@ -61,7 +61,7 @@ extension UICollectionViewDiffableDataSource {
         AnySubscriber(DiffableDataSourceSubscriber(self))
     }
     
-    private class DiffableDataSourceSubscriber: Subscriber {
+    private final class DiffableDataSourceSubscriber: Subscriber {
         typealias Input = NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>
         typealias Failure = Never
 
