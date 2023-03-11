@@ -1,8 +1,10 @@
 //
 //  Publisher+decode.swift
 //
-//
 //  Created by Mark Malstrom on 3/11/23.
+//
+//  h/t @johnsundell@mastodon.social:
+//  https://www.swiftbysundell.com/articles/extending-combine-with-convenience-apis/
 //
 
 import Combine

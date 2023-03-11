@@ -1,8 +1,10 @@
 //
 //  Publisher+asyncMap.swift
 //
-//
 //  Created by Mark Malstrom on 3/11/23.
+//
+//  h/t @johnsundell@mastodon.social:
+//  https://www.swiftbysundell.com/articles/calling-async-functions-within-a-combine-pipeline/
 //
 
 import Combine

@@ -1,8 +1,10 @@
 //
 //  UIControl+EventPublisher.swift
 //
-//
 //  Created by Mark Malstrom on 3/11/23.
+//
+// h/t @johnsundell@mastodon.social:
+// https://www.swiftbysundell.com/articles/building-custom-combine-publishers-in-swift/
 //
 
 import Combine

@@ -1,8 +1,10 @@
 //
 //  PassthroughSubject+emittingValues.swift
 //
-//
 //  Created by Mark Malstrom on 3/11/23.
+//
+//  h/t @johnsundell@mastodon.social:
+//  https://www.swiftbysundell.com/articles/creating-combine-compatible-versions-of-async-await-apis/
 //
 
 import Combine

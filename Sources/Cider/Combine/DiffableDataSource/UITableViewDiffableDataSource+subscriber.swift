@@ -1,7 +1,6 @@
 //
 //  UITableViewDiffableDataSource+subscriber.swift
 //
-//
 //  Created by Mark Malstrom on 3/11/23.
 //
 

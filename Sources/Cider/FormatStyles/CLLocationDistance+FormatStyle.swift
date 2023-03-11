@@ -1,6 +1,5 @@
 //
-//  File.swift
-//
+//  CLLocationDistance+FormatStyle.swift
 //
 //  Created by Mark Malstrom on 3/5/23.
 //

@@ -1,29 +1,12 @@
 import Foundation
 
-public protocol Configurable {
-    associatedtype T
-    @discardableResult func configure(_ closure: (_ instance: T) -> Void) -> T
-}
+protocol Configurable: AnyObject {}
 
-public extension Configurable {
-    @discardableResult func configure(_ closure: (_ instance: Self) -> Void) -> Self {
-        closure(self)
-        return self
+extension Configurable {
+    func configure<Object: Configurable>(closure: (Object) -> Void) -> Object {
+        closure(self as! Object)
+        return self as! Object
     }
 }
 
 extension NSObject: Configurable {}
-
-public protocol ValueConfigurable {
-    associatedtype T
-    @discardableResult func configure(_ closure: (_ instance: inout T) -> Void) -> T
-}
-
-public extension ValueConfigurable {
-    @discardableResult
-    func configure(_ closure: (_ instance: inout Self) -> Void) -> Self {
-        var this = self
-        closure(&this)
-        return this
-    }
-}
