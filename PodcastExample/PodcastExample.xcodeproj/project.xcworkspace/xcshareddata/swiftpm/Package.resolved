@@ -1,43 +1,41 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "CombineCocoa",
-        "repositoryURL": "https://github.com/CombineCommunity/CombineCocoa",
-        "state": {
-          "branch": null,
-          "revision": "749c16693b3a6fa1af2b95256fda734e7ec2258b",
-          "version": "0.2.2"
-        }
-      },
-      {
-        "package": "Nuke",
-        "repositoryURL": "https://github.com/kean/Nuke",
-        "state": {
-          "branch": null,
-          "revision": "8e0f42d1d9f30d816f3c565aa6193d9363325157",
-          "version": "9.6.0"
-        }
-      },
-      {
-        "package": "Resty",
-        "repositoryURL": "https://github.com/markmals/Resty",
-        "state": {
-          "branch": null,
-          "revision": "17c867457b58aaf1c354cc30f34f6b2e8e770274",
-          "version": "0.2.11"
-        }
-      },
-      {
-        "package": "SnapKit",
-        "repositoryURL": "https://github.com/SnapKit/SnapKit",
-        "state": {
-          "branch": "develop",
-          "revision": "80cc5696a4862be87b49bdda83b3e6514b10fb16",
-          "version": null
-        }
+  "pins" : [
+    {
+      "identity" : "combinecocoa",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/CombineCommunity/CombineCocoa",
+      "state" : {
+        "revision" : "749c16693b3a6fa1af2b95256fda734e7ec2258b",
+        "version" : "0.2.2"
       }
-    ]
-  },
-  "version": 1
+    },
+    {
+      "identity" : "nuke",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kean/Nuke",
+      "state" : {
+        "revision" : "8e0f42d1d9f30d816f3c565aa6193d9363325157",
+        "version" : "9.6.0"
+      }
+    },
+    {
+      "identity" : "resty",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/markmals/Resty",
+      "state" : {
+        "revision" : "17c867457b58aaf1c354cc30f34f6b2e8e770274",
+        "version" : "0.2.11"
+      }
+    },
+    {
+      "identity" : "snapkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SnapKit/SnapKit",
+      "state" : {
+        "revision" : "f222cbdf325885926566172f6f5f06af95473158",
+        "version" : "5.6.0"
+      }
+    }
+  ],
+  "version" : 2
 }
