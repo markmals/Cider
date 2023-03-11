@@ -1,24 +1,26 @@
 import UIKit
 
 @available(iOS 14.0, *)
-extension UICollectionViewDiffableDataSource where ItemIdentifierType: UIContentConfiguration {
-    public convenience init<Cell: UICollectionViewCell>(
+public extension UICollectionViewDiffableDataSource where ItemIdentifierType: UIContentConfiguration {
+    convenience init<Cell: UICollectionViewCell>(
         collectionView: UICollectionView,
         cellType: Cell.Type
     ) {
+        let registration = UICollectionView.CellRegistration<Cell, ItemIdentifierType>()
+
         // FIXME: I don't have any idea how this compiles without specifying the `SectionIdentifierType`
         // None of the informaion here conveys the concrete type of the `SectionIdentifierType`
-        
+
         // Yet, I can still apply a Snapshot<AnyArbitrarySectionIdentifierType> to a data
         // source created with this init.
-        
+
         // Why... How... What if I need to use a method on UICollectionViewDiffableDataSource
         // that needs to know the SectionIdentifierType?
-        
+
         // Where do I use the SectionIdentifierType? Can I configure sections to display differently? Where?
         self.init(collectionView: collectionView) { collectionView, indexPath, data in
             collectionView.dequeueConfiguredReusableCell(
-                using: UICollectionView.CellRegistration<Cell, ItemIdentifierType>(),
+                using: registration,
                 for: indexPath,
                 item: data
             )
@@ -27,8 +29,8 @@ extension UICollectionViewDiffableDataSource where ItemIdentifierType: UIContent
 }
 
 @available(iOS 14.0, *)
-extension UICollectionViewLayout {
-    public static func list(usingAppearance appearance: UICollectionLayoutListConfiguration.Appearance) -> UICollectionViewLayout {
+public extension UICollectionViewLayout {
+    static func list(usingAppearance appearance: UICollectionLayoutListConfiguration.Appearance) -> UICollectionViewLayout {
         UICollectionViewCompositionalLayout.list(
             using: UICollectionLayoutListConfiguration(appearance: appearance)
         )
@@ -36,8 +38,8 @@ extension UICollectionViewLayout {
 }
 
 @available(iOS 14.0, *)
-extension UICollectionView {
-    public static func list(usingAppearance appearance: UICollectionLayoutListConfiguration.Appearance) -> UICollectionView {
+public extension UICollectionView {
+    static func list(usingAppearance appearance: UICollectionLayoutListConfiguration.Appearance) -> UICollectionView {
         UICollectionView(
             frame: .zero,
             collectionViewLayout: .list(usingAppearance: appearance)
@@ -46,8 +48,8 @@ extension UICollectionView {
 }
 
 @available(iOS 14.0, *)
-extension UICollectionView.CellRegistration where Item: UIContentConfiguration {
-    public init() {
+public extension UICollectionView.CellRegistration where Item: UIContentConfiguration {
+    init() {
         self.init { cell, _, data in
             cell.contentConfiguration = data
         }
@@ -60,7 +62,7 @@ extension UICollectionViewDiffableDataSource {
     public var subscriber: AnySubscriber<NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>, Never> {
         AnySubscriber(DiffableDataSourceSubscriber(self))
     }
-    
+
     private final class DiffableDataSourceSubscriber: Subscriber {
         typealias Input = NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>
         typealias Failure = Never
@@ -83,20 +85,20 @@ extension UICollectionViewDiffableDataSource {
     }
 }
 
-extension NSDiffableDataSourceSnapshot {
-    public func appending(sections: [SectionIdentifierType]) -> Self {
+public extension NSDiffableDataSourceSnapshot {
+    func appending(sections: [SectionIdentifierType]) -> Self {
         var snapshot = self
         snapshot.appendSections(sections)
         return snapshot
     }
-    
-    public func appending(items: [ItemIdentifierType], to section: SectionIdentifierType) -> Self {
+
+    func appending(items: [ItemIdentifierType], to section: SectionIdentifierType) -> Self {
         var snapshot = self
         snapshot.appendItems(items, toSection: section)
         return snapshot
     }
-    
-    public func appending(items: [ItemIdentifierType]) -> Self {
+
+    func appending(items: [ItemIdentifierType]) -> Self {
         var snapshot = self
         snapshot.appendItems(items)
         return snapshot
