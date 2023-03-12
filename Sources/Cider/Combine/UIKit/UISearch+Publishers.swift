@@ -13,38 +13,40 @@ public extension UISearchBar {
     }
 }
 
-public extension UISearchController {
-    var searchTextPublisher: AnyPublisher<String, Never> {
-        searchBar.searchTextPublisher
+public final class CombineSearchController: UISearchController {
+    let _searchBar = CombineSearchBar()
+
+    override public var searchBar: CombineSearchBar {
+        _searchBar
     }
 }
 
-extension UISearchBar {
-    var searchButtonClickedPublisher: AnyPublisher<String, Never> {
-        CombineCoordinator(searchBar)
-            .delegate
-            .searchBarSearchButtonClickedPublisher
-            .eraseToAnyPublisher()
-    }
-}
-
-extension UISearchBar {
-    private final class CombineDelegate: NSObject, UISearchBarDelegate {
-        let searchBarSearchButtonClickedPublisher = PassthroughSubject<String, Never>()
+public final class CombineSearchBar: UISearchBar {
+    private final class Coordinator: NSObject, UISearchBarDelegate {
+        let searchButtonClickedPublisher = PassthroughSubject<String, Never>()
+        let cancelButtonClickedPublisher = PassthroughSubject<Void, Never>()
 
         func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
             guard let text = searchBar.text else { return }
-            publisher.send(text)
+            searchButtonClickedPublisher.send(text)
+        }
+
+        func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+            cancelButtonClickedPublisher.send()
         }
     }
 
-    private final class CombineCoordinator {
-        let delegate = CombineDelegate()
+    private let _delegate = Coordinator()
+    override public var delegate: UISearchBarDelegate? {
+        get { _delegate }
+        set {}
+    }
 
-        init(_ bar: UISearchBar) { 
-            bar.delegate = delegate 
-        }
+    public var searchButtonClickedPublisher: AnyPublisher<String, Never> {
+        _delegate.searchButtonClickedPublisher.eraseToAnyPublisher()
+    }
+
+    public var cancelButtonClickedPublisher: AnyPublisher<Void, Never> {
+        _delegate.cancelButtonClickedPublisher.eraseToAnyPublisher()
     }
 }
-
-

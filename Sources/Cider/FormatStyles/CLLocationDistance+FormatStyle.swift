@@ -14,13 +14,13 @@ public extension CLLocationDistance {
     struct FormatStyle: Foundation.FormatStyle {
         private static let formatter = MKDistanceFormatter()
 
-        private var formatterUnits: MKDistanceFormatter.Units?
-        private var formatterUnitStyle: MKDistanceFormatter.DistanceUnitStyle?
-        private var formatterLocale: Locale?
+        private var formatterUnits: MKDistanceFormatter.Units = .imperial
+        private var formatterUnitStyle: MKDistanceFormatter.DistanceUnitStyle = .abbreviated
+        private var formatterLocale: Locale = .current
 
         public static func units(
             _ value: MKDistanceFormatter.Units,
-            style: MKDistanceFormatter.DistanceUnitStyle? = nil
+            style: MKDistanceFormatter.DistanceUnitStyle = .abbreviated
         ) -> Self {
             var instance = Self()
             instance.formatterUnits = value
@@ -36,7 +36,7 @@ public extension CLLocationDistance {
 
         public func units(
             _ value: MKDistanceFormatter.Units,
-            style: MKDistanceFormatter.DistanceUnitStyle? = nil
+            style: MKDistanceFormatter.DistanceUnitStyle = .abbreviated
         ) -> Self {
             var instance = self
             instance.formatterUnits = value
@@ -51,9 +51,9 @@ public extension CLLocationDistance {
         }
 
         public func format(_ value: CLLocationDistance) -> String {
-            Self.formatter.units = .imperial
-            Self.formatter.locale = .current
-            Self.formatter.unitStyle = .abbreviated
+            Self.formatter.units = self.formatterUnits
+            Self.formatter.locale = self.formatterLocale
+            Self.formatter.unitStyle = self.formatterUnitStyle
             return Self.formatter.string(fromDistance: value)
         }
     }
@@ -65,7 +65,11 @@ public extension CLLocationDistance {
         return format.format(self)
     }
 
+    func formatted(_ format: CLLocationDistance.FormatStyle) -> CLLocationDistance.FormatStyle.FormatOutput {
+        return format.format(self)
+    }
+
     func formatted() -> String {
-        formatted(CLLocationDistance.FormatStyle())
+        self.formatted(CLLocationDistance.FormatStyle())
     }
 }

@@ -10,7 +10,7 @@
 import UIKit
 
 extension UIButton {
-    init(
+    convenience init(
         title: String = "",
         image: UIImage? = nil,
         handler: @escaping () -> Void
@@ -24,4 +24,3 @@ extension UIButton {
         ))
     }
 }
-

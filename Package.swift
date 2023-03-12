@@ -1,11 +1,10 @@
-// swift-tools-version:5.4
+// swift-tools-version:5.7
 
 import PackageDescription
 
 let package = Package(
     name: "Cider",
-    platforms: [.iOS(.v13)],
+    platforms: [.iOS(.v14), .macCatalyst(.v14), .watchOS(.v7), .tvOS(.v14)],
     products: [.library(name: "Cider", targets: ["Cider"])],
-    dependencies: [.package(url: "https://github.com/SnapKit/SnapKit", .branch("develop"))],
-    targets: [.target(name: "Cider", dependencies: ["SnapKit"])]
+    targets: [.target(name: "Cider", dependencies: [])]
 )
