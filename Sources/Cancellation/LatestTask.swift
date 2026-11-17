@@ -7,10 +7,10 @@
 /// cancels its running operation.
 ///
 /// ```swift
-/// @ObservationIgnored private let search = LatestTask<[Recipe]>()
+/// @ObservationIgnored private let latestSearch = LatestTask<[Recipe]>()
 ///
 /// func search(for query: String) {
-///     search.run { [service] in
+///     latestSearch.run { [service] in
 ///         try await service.recipes(matching: query)
 ///     } completion: { [weak self] result in
 ///         self?.apply(result)
