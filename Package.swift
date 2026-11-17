@@ -10,6 +10,7 @@ let package = Package(
     products: [
         .library(name: "Cider", targets: ["Cider"]),
         .library(name: "CocoaObservation", targets: ["CocoaObservation"]),
+        .library(name: "Configurable", targets: ["Configurable"]),
         .library(name: "Layout", targets: ["Layout"]),
     ],
     targets: [
@@ -19,6 +20,12 @@ let package = Package(
         .testTarget(
             name: "CocoaObservationTests",
             dependencies: ["CocoaObservation"],
+            swiftSettings: strict
+        ),
+        .target(name: "Configurable", swiftSettings: strict),
+        .testTarget(
+            name: "ConfigurableTests",
+            dependencies: ["Configurable"],
             swiftSettings: strict
         ),
         .target(name: "Layout", swiftSettings: strict),
