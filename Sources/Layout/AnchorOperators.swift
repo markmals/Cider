@@ -17,33 +17,42 @@ public func - <Anchor: AnyObject>(
     rhs: CGFloat
 ) -> (NSLayoutAnchor<Anchor>, CGFloat) { (lhs, -rhs) }
 
+// UIKit isolates anchors and constraints to the main actor; AppKit doesn't, so isolating these
+// keeps one set of operators for both.
+
 // MARK: - Anchor relations
 
+@MainActor
 public func == <Anchor: AnyObject>(
     lhs: NSLayoutAnchor<Anchor>,
     rhs: NSLayoutAnchor<Anchor>
 ) -> NSLayoutConstraint { lhs.constraint(equalTo: rhs) }
 
+@MainActor
 public func == <Anchor: AnyObject>(
     lhs: NSLayoutAnchor<Anchor>,
     rhs: (NSLayoutAnchor<Anchor>, CGFloat)
 ) -> NSLayoutConstraint { lhs.constraint(equalTo: rhs.0, constant: rhs.1) }
 
+@MainActor
 public func >= <Anchor: AnyObject>(
     lhs: NSLayoutAnchor<Anchor>,
     rhs: NSLayoutAnchor<Anchor>
 ) -> NSLayoutConstraint { lhs.constraint(greaterThanOrEqualTo: rhs) }
 
+@MainActor
 public func >= <Anchor: AnyObject>(
     lhs: NSLayoutAnchor<Anchor>,
     rhs: (NSLayoutAnchor<Anchor>, CGFloat)
 ) -> NSLayoutConstraint { lhs.constraint(greaterThanOrEqualTo: rhs.0, constant: rhs.1) }
 
+@MainActor
 public func <= <Anchor: AnyObject>(
     lhs: NSLayoutAnchor<Anchor>,
     rhs: NSLayoutAnchor<Anchor>
 ) -> NSLayoutConstraint { lhs.constraint(lessThanOrEqualTo: rhs) }
 
+@MainActor
 public func <= <Anchor: AnyObject>(
     lhs: NSLayoutAnchor<Anchor>,
     rhs: (NSLayoutAnchor<Anchor>, CGFloat)
@@ -51,14 +60,17 @@ public func <= <Anchor: AnyObject>(
 
 // MARK: - Dimension constants
 
+@MainActor
 public func == (lhs: NSLayoutDimension, rhs: CGFloat) -> NSLayoutConstraint {
     lhs.constraint(equalToConstant: rhs)
 }
 
+@MainActor
 public func >= (lhs: NSLayoutDimension, rhs: CGFloat) -> NSLayoutConstraint {
     lhs.constraint(greaterThanOrEqualToConstant: rhs)
 }
 
+@MainActor
 public func <= (lhs: NSLayoutDimension, rhs: CGFloat) -> NSLayoutConstraint {
     lhs.constraint(lessThanOrEqualToConstant: rhs)
 }
@@ -77,6 +89,7 @@ infix operator ~ : ConstraintPriorityPrecedence
 #if os(macOS)
 /// Sets the constraint's priority and returns it. Set priority before activation: changing a
 /// required active constraint to optional, or back, throws an exception.
+@MainActor
 public func ~ (
     constraint: NSLayoutConstraint,
     priority: NSLayoutConstraint.Priority
@@ -88,6 +101,7 @@ public func ~ (
 /// Sets the constraint's priority and returns it. Set priority before activation: changing a
 /// required active constraint to optional, or back, throws an exception.
 public func ~ (constraint: NSLayoutConstraint, priority: UILayoutPriority) -> NSLayoutConstraint {
+@MainActor
     constraint.priority = priority
     return constraint
 }
