@@ -122,6 +122,8 @@ let row = UIStackView(axis: .horizontal, alignment: .center, spacing: 12) {
 
 `NSStackView(orientation:alignment:distribution:spacing:arrangedSubviews:)` is the AppKit equivalent; a `nil` setting keeps `NSStackView`'s default. Both have `addArrangedSubviews`, `replaceArrangedSubviews(with:)` and `removeAllArrangedSubviews()`, which leaves each view's own constraints, such as a fixed size, in place.
 
+`replaceArrangedSubviews(with:)` changes only what differs. A view that stays arranged never leaves the hierarchy, so a field being edited keeps its focus; it moves if its position changed, and views no longer listed are removed. Calling it with the views already arranged does nothing, which makes it safe to call from `updateProperties()` on every update, as long as it's given the same view objects each time.
+
 ## Configurable
 
 ```swift

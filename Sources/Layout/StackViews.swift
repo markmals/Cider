@@ -59,9 +59,31 @@ extension LayoutStackView {
         for view in arrangedSubviews { view.removeFromSuperview() }
     }
 
+    /// Makes `views` the arranged subviews, in order. A view that's already arranged stays in
+    /// the hierarchy, keeping its first-responder status and any state, and moves only if its
+    /// position changed. Views not in `views` leave the stack view and the hierarchy, as with
+    /// `removeAllArrangedSubviews()`. Nothing happens when the arranged subviews already match.
     public func replaceArrangedSubviews(@SubviewBuilder with views: () -> [LayoutView]) {
-        removeAllArrangedSubviews()
-        addArrangedSubviews(views)
+        var staying = Set<ObjectIdentifier>()
+        // A view can be arranged only once; one listed again keeps its first position.
+        let replacements = views().filter { staying.insert(ObjectIdentifier($0)).inserted }
+        var arranged = arrangedSubviews
+        guard !arranged.elementsEqual(replacements, by: ===) else { return }
+
+        let leaving = arranged.filter { !staying.contains(ObjectIdentifier($0)) }
+        for view in leaving { view.removeFromSuperview() }
+        if !leaving.isEmpty { arranged = arrangedSubviews }
+
+        // Everything before `index` already matches, so a view found out of place is further on
+        // and moving it forward leaves the matched part alone.
+        for (index, view) in replacements.enumerated() {
+            if index < arranged.count, arranged[index] === view { continue }
+            if let current = arranged.firstIndex(where: { $0 === view }) {
+                arranged.remove(at: current)
+            }
+            arranged.insert(view, at: index)
+            insertArrangedSubview(view, at: index)
+        }
     }
 }
 
