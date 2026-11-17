@@ -9,10 +9,13 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# The package needs Swift 6.4 tools and the OS 27 SDKs, and its tests run on macOS 27. GitHub's
+# only image with those is the `xcode-27` preview; `macos-26` stops at Xcode 26 and Swift 6.3.
+# Move to `macos-27` once that label exists.
 jobs:
   check:
     name: Lint and test on macOS
-    runs-on: macos-26
+    runs-on: xcode-27
     steps:
       - uses: actions/checkout@v5
       - uses: maxim-lobanov/setup-xcode@v1
@@ -23,7 +26,7 @@ jobs:
 
   ios:
     name: Test on the iOS Simulator
-    runs-on: macos-26
+    runs-on: xcode-27
     steps:
       - uses: actions/checkout@v5
       - uses: maxim-lobanov/setup-xcode@v1
@@ -34,7 +37,7 @@ jobs:
 
   platforms:
     name: Build for iOS, tvOS, visionOS and Mac Catalyst
-    runs-on: macos-26
+    runs-on: xcode-27
     steps:
       - uses: actions/checkout@v5
       - uses: maxim-lobanov/setup-xcode@v1
