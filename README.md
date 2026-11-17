@@ -48,13 +48,13 @@ The properties read in `updateProperties()` are its dependencies. Changing one r
 
 ## UIObservationBinding
 
-A binding stores an expression and re-evaluates it whenever the `@Observable` state it read changes, the way Solid wraps a JSX expression in an effect. Control initializers take live arguments as autoclosures, so the expression reads like a plain value:
+A binding stores an expression and re-evaluates it whenever the `@Observable` state it read changes, the way Solid wraps a JSX expression in an effect. One-way control initializers take live arguments as autoclosures, so the expression reads like a plain value. Two-way controls take a `UIBinding`, which `@UIBindable` hands out as `$model.property`:
 
 ```swift
 import UIObservationBinding
 
 final class CounterViewController: UIViewController {
-    let counter = Counter()
+    @UIBindable var counter = Counter()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -62,14 +62,14 @@ final class CounterViewController: UIViewController {
 
         let label = UILabel(text: "The count is \(counter.count)")
         let add = UIButton(title: "Add one", action: UIAction { _ in counter.count += 1 })
-        let limit = UISwitch(isOn: counter, \.isLimited)
+        let limit = UISwitch(isOn: $counter.isLimited)
         add.bind(\.isEnabled, to: !counter.isLimited || counter.count < 10)
         // …
     }
 }
 ```
 
-Capture models in a local, as `let counter = counter` does, and never through `self`. A bound expression that reads `self.counter` keeps the controller alive through its own view: controller → view → label → binding → controller. `UIAction` handlers need the same rule.
+Capture models in a local, as `let counter = counter` does, and never through `self`. A live expression that reads `self.counter` keeps the controller alive through its own view: controller → view → label → binding → controller. `UIAction` handlers need the same rule. `$counter.isLimited` is safe as written: the binding holds the model, not the controller.
 
 - A binding sets its value immediately, then again on a later main-actor turn after the state it read changes. Synchronous changes coalesce, and an equal value isn't reassigned, so a text field keeps its selection.
 - Binding the same key path again replaces the earlier binding, which suits reused cells. Every binding ends when its object deallocates.
@@ -78,10 +78,10 @@ Capture models in a local, as `let counter = counter` does, and never through `s
 | Platform | One way | Two way |
 | --- | --- | --- |
 | Both | `bind(_:to:)` on any `NSObject` | |
-| UIKit | `UILabel(text:)`, `UIButton(title:action:)` | `UITextField(text:_:)`, `UISwitch(isOn:_:)`, `UISearchBar.bindText(to:_:)`, and `bind(_:to:_:sentBy:)` on any `UIControl` |
-| AppKit | `NSTextField(label:)`, `NSButton(title:action:)` | `NSTextField(text:_:)`, `NSButton(checkboxWithTitle:isOn:_:)`, `NSSwitch(isOn:_:)`, and `bind(_:to:_:)` on any `NSControl` |
+| UIKit | `UILabel(text:)`, `UIButton(title:action:)` | `UITextField(text:)`, `UISwitch(isOn:)`, `bind(text:)` on text fields and search bars, and `bind(_:to:sentBy:)` on any `UIControl` |
+| AppKit | `NSTextField(label:)`, `NSButton(title:action:)` | `NSTextField(text:)`, `NSButton(checkboxWithTitle:isOn:)`, `NSSwitch(isOn:)`, `bind(text:)` on text fields, and `bind(_:to:)` on any `NSControl` |
 
-Two-way bindings write user edits back through a writable key path on the model. On AppKit, `bind(_:to:_:)` takes over the control's `target` and `action`; text fields use notifications instead, so their actions stay free.
+`UIBinding` is SwiftUI's `Binding` for UIKit and AppKit, modeled on Point-Free's swift-navigation. Besides `$model.property`, `$model.filters.showsDrafts` reaches into a struct, `UIBinding(get:set:)` wraps any storage, `.constant(_:)` ignores writes, and `@UIBinding var isPlaying = false` declares local state that controls and live expressions observe. On AppKit, `bind(_:to:)` takes over the control's `target` and `action`; text fields use notifications instead, so their actions stay free.
 
 Bindings and `updateProperties()` run on the same observation machinery at different granularity. Bind a property when one expression determines it. Use `updateProperties()` when several properties must change together in one pass, or when the update adds and removes views.
 

@@ -1,27 +1,25 @@
 #if os(iOS) || os(tvOS) || os(visionOS)
-import Observation
 import UIKit
 
 extension ObservationBindable where Self: UIControl {
-    /// Two-way binding: keeps `keyPath` equal to `model[keyPath: modelKeyPath]`, and writes the
-    /// control's value back to the model whenever the control sends `event`.
+    /// Two-way binding: keeps `keyPath` equal to `binding`, and writes the control's value back
+    /// through it whenever the control sends `event`.
     ///
     /// ```swift
-    /// slider.bind(\.value, to: model, \.volume, sentBy: .valueChanged)
+    /// slider.bind(\.value, to: $model.volume, sentBy: .valueChanged)
     /// ```
     @MainActor
-    public func bind<Model: Observable & AnyObject, Value: Equatable>(
+    public func bind<Value: Equatable>(
         _ keyPath: ReferenceWritableKeyPath<Self, Value>,
-        to model: Model,
-        _ modelKeyPath: ReferenceWritableKeyPath<Model, Value>,
+        to binding: UIBinding<Value>,
         sentBy event: UIControl.Event
     ) {
-        bind(keyPath, to: model[keyPath: modelKeyPath])
+        bind(keyPath, to: binding.wrappedValue)
         let control = WeakReference(self)
         addAction(
             UIAction(identifier: .binding(keyPath)) { _ in
                 guard let control = control.value else { return }
-                model[keyPath: modelKeyPath] = control[keyPath: keyPath]
+                binding.wrappedValue = control[keyPath: keyPath]
             },
             for: event
         )
@@ -55,32 +53,25 @@ extension UIButton {
 }
 
 extension UITextField {
-    /// A text field bound two ways to `model[keyPath: keyPath]`; edits write back as the user
-    /// types.
-    public convenience init<Model: Observable & AnyObject>(
-        text model: Model,
-        _ keyPath: ReferenceWritableKeyPath<Model, String>
-    ) {
+    /// A text field bound two ways to `text`; edits write back as the user types.
+    public convenience init(text: UIBinding<String>) {
         self.init(frame: .zero)
-        bindText(to: model, keyPath)
+        bind(text: text)
     }
 
-    /// Binds the text two ways to `model[keyPath: keyPath]`. Model changes wait while the user
-    /// is composing marked text, such as an unfinished Japanese word.
-    public func bindText<Model: Observable & AnyObject>(
-        to model: Model,
-        _ keyPath: ReferenceWritableKeyPath<Model, String>
-    ) {
-        let current: @MainActor () -> String = { model[keyPath: keyPath] }
-        sink(.value(\UITextField.text), current) { field, text in
-            guard field.markedTextRange == nil, field.text != text else { return }
-            field.text = text
+    /// Binds the text two ways to `text`. Changes from the binding wait while the user is
+    /// composing marked text, such as an unfinished Japanese word.
+    public func bind(text: UIBinding<String>) {
+        let current: @MainActor () -> String = { text.wrappedValue }
+        sink(.value(\UITextField.text), current) { field, newText in
+            guard field.markedTextRange == nil, field.text != newText else { return }
+            field.text = newText
         }
         let field = WeakReference(self)
         addAction(
             UIAction(identifier: .binding(\UITextField.text)) { _ in
                 guard let field = field.value else { return }
-                model[keyPath: keyPath] = field.text ?? ""
+                text.wrappedValue = field.text ?? ""
             },
             for: .editingChanged
         )
@@ -89,23 +80,17 @@ extension UITextField {
 
 #if !os(tvOS)
 extension UISwitch {
-    /// A switch bound two ways to `model[keyPath: keyPath]`.
-    public convenience init<Model: Observable & AnyObject>(
-        isOn model: Model,
-        _ keyPath: ReferenceWritableKeyPath<Model, Bool>
-    ) {
+    /// A switch bound two ways to `isOn`.
+    public convenience init(isOn: UIBinding<Bool>) {
         self.init(frame: .zero)
-        (self as UISwitch).bind(\.isOn, to: model, keyPath, sentBy: .valueChanged)
+        (self as UISwitch).bind(\.isOn, to: isOn, sentBy: .valueChanged)
     }
 }
 
 extension UISearchBar {
-    /// Binds the search text two ways to `model[keyPath: keyPath]`, through `searchTextField`.
-    public func bindText<Model: Observable & AnyObject>(
-        to model: Model,
-        _ keyPath: ReferenceWritableKeyPath<Model, String>
-    ) {
-        searchTextField.bindText(to: model, keyPath)
+    /// Binds the search text two ways to `text`, through `searchTextField`.
+    public func bind(text: UIBinding<String>) {
+        searchTextField.bind(text: text)
     }
 }
 #endif

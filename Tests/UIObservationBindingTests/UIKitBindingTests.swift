@@ -20,8 +20,8 @@ struct UIKitBindingTests {
 
     @Test("a text field writes edits back and follows the model")
     func textField() async {
-        let model = FormModel()
-        let field = UITextField(text: model, \.query)
+        @UIBindable var model = FormModel()
+        let field = UITextField(text: $model.query)
 
         field.text = "pie"
         field.sendActions(for: .editingChanged)
@@ -34,8 +34,8 @@ struct UIKitBindingTests {
 
     @Test("a switch writes toggles back and follows the model")
     func toggle() async {
-        let model = FormModel()
-        let toggle = UISwitch(isOn: model, \.isEnabled)
+        @UIBindable var model = FormModel()
+        let toggle = UISwitch(isOn: $model.isEnabled)
         #expect(!toggle.isOn)
 
         toggle.isOn = true
@@ -47,12 +47,12 @@ struct UIKitBindingTests {
         #expect(!toggle.isOn)
     }
 
-    @Test("rebinding a control writes edits to the new model only")
+    @Test("rebinding a control writes edits to the new binding only")
     func rebindingReplacesAction() {
-        let first = FormModel()
-        let second = FormModel()
-        let field = UITextField(text: first, \.query)
-        field.bindText(to: second, \.query)
+        @UIBindable var first = FormModel()
+        @UIBindable var second = FormModel()
+        let field = UITextField(text: $first.query)
+        field.bind(text: $second.query)
 
         field.text = "pie"
         field.sendActions(for: .editingChanged)

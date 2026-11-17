@@ -21,7 +21,7 @@ Cider is a SwiftPM package of independently importable modules for UIKit and App
 ## Contracts the tests hold
 
 - **Observation adapter** (`CocoaObservationTests`): first render, only properties read are tracked, dependency sets can change, synchronous changes coalesce, explicit invalidation and synchronous flush work, detach/reattach renders the latest state with one observation, deallocation, and invalidation requested during an update.
-- **Bindings** (`UIObservationBindingTests`): a binding sets its value immediately and updates on a later main-actor turn, coalesces, skips equal values, is replaced when its key path is bound again, and ends with its object. Bound expressions must capture models, never `self`, or the controller leaks through its own views.
+- **Bindings** (`UIObservationBindingTests`): a binding sets its value immediately and updates on a later main-actor turn, coalesces, skips equal values, is replaced when its key path is bound again, and ends with its object. Live expressions must capture models, never `self`, or the controller leaks through its own views. Two-way controls take a `UIBinding`: one from `$model` holds only the model, writes through a struct field land in the model, and local `@UIBinding` state is observable.
 - **LatestTask** (`CancellationTests`): a superseded or cancelled operation never delivers, even when it ignores cancellation, and every delivered error is a real failure.
 
 A change that alters one of these needs its test updated in the same commit, along with the README.

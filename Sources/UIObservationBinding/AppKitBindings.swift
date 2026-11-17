@@ -1,40 +1,37 @@
 #if os(macOS)
 import AppKit
-import Observation
 
 extension ObservationBindable where Self: NSControl {
-    /// Two-way binding: keeps `keyPath` equal to `model[keyPath: modelKeyPath]`, and writes the
-    /// control's value back to the model whenever the control sends its action. This takes over
-    /// the control's `target` and `action`.
+    /// Two-way binding: keeps `keyPath` equal to `binding`, and writes the control's value back
+    /// through it whenever the control sends its action. This takes over the control's `target`
+    /// and `action`.
     ///
     /// ```swift
-    /// slider.bind(\.doubleValue, to: model, \.volume)
+    /// slider.bind(\.doubleValue, to: $model.volume)
     /// ```
     @MainActor
-    public func bind<Model: Observable & AnyObject, Value: Equatable>(
+    public func bind<Value: Equatable>(
         _ keyPath: ReferenceWritableKeyPath<Self, Value>,
-        to model: Model,
-        _ modelKeyPath: ReferenceWritableKeyPath<Model, Value>
+        to binding: UIBinding<Value>
     ) {
-        bind(keyPath, to: model[keyPath: modelKeyPath])
+        bind(keyPath, to: binding.wrappedValue)
         let control = WeakReference(self)
         setAction {
             guard let control = control.value else { return }
-            model[keyPath: modelKeyPath] = control[keyPath: keyPath]
+            binding.wrappedValue = control[keyPath: keyPath]
         }
     }
 
     @MainActor
-    fileprivate func bindState<Model: Observable & AnyObject>(
+    fileprivate func bindState(
         _ state: ReferenceWritableKeyPath<Self, NSControl.StateValue>,
-        to model: Model,
-        _ keyPath: ReferenceWritableKeyPath<Model, Bool>
+        to isOn: UIBinding<Bool>
     ) {
-        bind(state, to: model[keyPath: keyPath] ? .on : .off)
+        bind(state, to: isOn.wrappedValue ? .on : .off)
         let control = WeakReference(self)
         setAction {
             guard let control = control.value else { return }
-            model[keyPath: keyPath] = control[keyPath: state] == .on
+            isOn.wrappedValue = control[keyPath: state] == .on
         }
     }
 
@@ -72,33 +69,26 @@ extension NSTextField {
         (self as NSTextField).bind(\.stringValue, to: label())
     }
 
-    /// An editable field bound two ways to `model[keyPath: keyPath]`; edits write back as the
-    /// user types.
-    public convenience init<Model: Observable & AnyObject>(
-        text model: Model,
-        _ keyPath: ReferenceWritableKeyPath<Model, String>
-    ) {
+    /// An editable field bound two ways to `text`; edits write back as the user types.
+    public convenience init(text: UIBinding<String>) {
         self.init(string: "")
-        bindText(to: model, keyPath)
+        bind(text: text)
     }
 
-    /// Binds the text two ways to `model[keyPath: keyPath]`, without touching the field's
-    /// `target`, `action` or `delegate`. Model changes wait while the user is composing marked
-    /// text, such as an unfinished Japanese word.
-    public func bindText<Model: Observable & AnyObject>(
-        to model: Model,
-        _ keyPath: ReferenceWritableKeyPath<Model, String>
-    ) {
-        let current: @MainActor () -> String = { model[keyPath: keyPath] }
-        sink(.value(\NSTextField.stringValue), current) { field, text in
+    /// Binds the text two ways to `text`, without touching the field's `target`, `action` or
+    /// `delegate`. Changes from the binding wait while the user is composing marked text, such
+    /// as an unfinished Japanese word.
+    public func bind(text: UIBinding<String>) {
+        let current: @MainActor () -> String = { text.wrappedValue }
+        sink(.value(\NSTextField.stringValue), current) { field, newText in
             let isComposing = (field.currentEditor() as? NSTextView)?.hasMarkedText() ?? false
-            guard !isComposing, field.stringValue != text else { return }
-            field.stringValue = text
+            guard !isComposing, field.stringValue != newText else { return }
+            field.stringValue = newText
         }
         let field = WeakReference(self)
         let writeBack: @MainActor () -> Void = {
             guard let field = field.value else { return }
-            model[keyPath: keyPath] = field.stringValue
+            text.wrappedValue = field.stringValue
         }
         let changes = NotificationCenter.default.addObserver(
             forName: NSControl.textDidChangeNotification,
@@ -136,25 +126,18 @@ extension NSButton {
         setAction(action)
     }
 
-    /// A checkbox bound two ways to `model[keyPath: keyPath]`.
-    public convenience init<Model: Observable & AnyObject>(
-        checkboxWithTitle title: String,
-        isOn model: Model,
-        _ keyPath: ReferenceWritableKeyPath<Model, Bool>
-    ) {
+    /// A checkbox bound two ways to `isOn`.
+    public convenience init(checkboxWithTitle title: String, isOn: UIBinding<Bool>) {
         self.init(checkboxWithTitle: title, target: nil, action: nil)
-        (self as NSButton).bindState(\.state, to: model, keyPath)
+        (self as NSButton).bindState(\.state, to: isOn)
     }
 }
 
 extension NSSwitch {
-    /// A switch bound two ways to `model[keyPath: keyPath]`.
-    public convenience init<Model: Observable & AnyObject>(
-        isOn model: Model,
-        _ keyPath: ReferenceWritableKeyPath<Model, Bool>
-    ) {
+    /// A switch bound two ways to `isOn`.
+    public convenience init(isOn: UIBinding<Bool>) {
         self.init(frame: .zero)
-        (self as NSSwitch).bindState(\.state, to: model, keyPath)
+        (self as NSSwitch).bindState(\.state, to: isOn)
     }
 }
 #endif

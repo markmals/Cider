@@ -25,8 +25,8 @@ struct AppKitBindingTests {
 
     @Test("a text field writes edits back and follows the model")
     func textField() async {
-        let model = FormModel()
-        let field = NSTextField(text: model, \.query)
+        @UIBindable var model = FormModel()
+        let field = NSTextField(text: $model.query)
 
         field.stringValue = "pie"
         NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: field)
@@ -40,8 +40,8 @@ struct AppKitBindingTests {
 
     @Test("a checkbox writes clicks back and follows the model")
     func checkbox() async {
-        let model = FormModel()
-        let checkbox = NSButton(checkboxWithTitle: "Enabled", isOn: model, \.isEnabled)
+        @UIBindable var model = FormModel()
+        let checkbox = NSButton(checkboxWithTitle: "Enabled", isOn: $model.isEnabled)
         #expect(checkbox.state == .off)
 
         checkbox.performClick(nil)
@@ -65,20 +65,14 @@ struct AppKitBindingTests {
 
     @Test("a two-way slider writes its value back")
     func slider() async {
-        let model = SliderModel()
+        @UIBindable var model = FormModel()
         let slider = NSSlider(value: 0, minValue: 0, maxValue: 10, target: nil, action: nil)
-        slider.bind(\.doubleValue, to: model, \.volume)
+        slider.bind(\.doubleValue, to: $model.volume)
         #expect(slider.doubleValue == 5)
 
         slider.doubleValue = 8
         slider.sendAction(slider.action, to: slider.target)
         #expect(model.volume == 8)
     }
-}
-
-@MainActor
-@Observable
-private final class SliderModel {
-    var volume = 5.0
 }
 #endif

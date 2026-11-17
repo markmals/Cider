@@ -8,6 +8,12 @@ final class FormModel {
     var count = 0
     var isEnabled = false
     var query = ""
+    var volume = 5.0
+    var filters = Filters()
+}
+
+struct Filters {
+    var showsDrafts = false
 }
 
 /// Counts writes, so tests can tell a skipped assignment from an equal one.
