@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  NSLayoutConstraint+Builder.swift
 //
@@ -184,3 +185,4 @@ public extension UIStackView {
         self.addArrangedSubviews(subviews)
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  Publisher+decode.swift
 //
@@ -18,3 +19,4 @@ extension Publisher where Output == Data {
         decode(type: type, decoder: decoder)
     }
 }
+#endif

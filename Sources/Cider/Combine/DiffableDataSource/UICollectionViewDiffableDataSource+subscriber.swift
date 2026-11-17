@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  UICollectionViewDiffableDataSource+subscriber.swift
 //
@@ -12,3 +13,4 @@ public extension UICollectionViewDiffableDataSource {
         AnySubscriber(DiffableDataSourceSubscriber(self))
     }
 }
+#endif

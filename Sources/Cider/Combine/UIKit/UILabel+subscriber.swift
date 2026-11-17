@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  UILabel+subscriber.swift
 //
@@ -33,3 +34,4 @@ extension UILabel {
         }
     }
 }
+#endif

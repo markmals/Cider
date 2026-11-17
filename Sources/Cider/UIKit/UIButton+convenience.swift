@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  UIButton+convenience.swift
 //
@@ -24,3 +25,4 @@ extension UIButton {
         ))
     }
 }
+#endif

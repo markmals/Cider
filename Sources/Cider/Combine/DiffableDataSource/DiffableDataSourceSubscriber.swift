@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  DiffableDataSourceSubscriber.swift
 //
@@ -48,3 +49,4 @@ internal final class DiffableDataSourceSubscriber<
         dataSource = nil
     }
 }
+#endif

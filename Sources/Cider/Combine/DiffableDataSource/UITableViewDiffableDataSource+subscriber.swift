@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  UITableViewDiffableDataSource+subscriber.swift
 //
@@ -12,3 +13,4 @@ public extension UITableViewDiffableDataSource {
         AnySubscriber(DiffableDataSourceSubscriber(self))
     }
 }
+#endif

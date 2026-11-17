@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  Publisher+asyncMap.swift
 //
@@ -39,3 +40,4 @@ public extension Publisher {
         }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  PassthroughSubject+emittingValues.swift
 //
@@ -70,3 +71,4 @@ extension PassthroughSubject {
         return subject
     }
 }
+#endif

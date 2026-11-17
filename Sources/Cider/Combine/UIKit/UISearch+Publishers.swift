@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  UISearch+Publishers.swift
 //
@@ -50,3 +51,4 @@ public final class CombineSearchBar: UISearchBar {
         _delegate.cancelButtonClickedPublisher.eraseToAnyPublisher()
     }
 }
+#endif

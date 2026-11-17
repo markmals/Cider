@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import Foundation
 
 protocol Configurable: AnyObject {}
@@ -10,3 +11,4 @@ extension Configurable {
 }
 
 extension NSObject: Configurable {}
+#endif

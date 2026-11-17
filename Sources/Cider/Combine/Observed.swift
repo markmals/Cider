@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  Observed.swift
 //
@@ -56,3 +57,4 @@ public struct Observed<Value> {
         }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  Router.swift
 //
@@ -11,3 +12,4 @@ public protocol Router<Route> {
 
     func navigate(to route: Route, from viewController: UIViewController?)
 }
+#endif

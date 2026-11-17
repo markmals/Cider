@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  Future+async.swift
 //
@@ -34,3 +35,4 @@ public extension Future where Failure == Never {
         }
     }
 }
+#endif

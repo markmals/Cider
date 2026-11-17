@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  UITextField+Publishers.swift
 //
@@ -15,3 +16,4 @@ extension UITextField {
             .eraseToAnyPublisher()
     }
 }
+#endif

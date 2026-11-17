@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  RunLoopTickPublisher.swift
 //
@@ -45,3 +46,4 @@ internal final class RunLoopTickPublisher: Publisher {
         ticks += 1
     }
 }
+#endif

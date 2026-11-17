@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  UIControl+EventPublisher.swift
 //
@@ -68,3 +69,4 @@ public extension UIControl {
         )
     }
 }
+#endif

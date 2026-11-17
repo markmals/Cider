@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  UIColor+utilities.swift
 //
@@ -39,3 +40,4 @@ extension UIColor {
         return nil
     }
 }
+#endif

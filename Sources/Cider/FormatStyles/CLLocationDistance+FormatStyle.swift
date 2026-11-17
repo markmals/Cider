@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  CLLocationDistance+FormatStyle.swift
 //
@@ -73,3 +74,4 @@ public extension CLLocationDistance {
         self.formatted(CLLocationDistance.FormatStyle())
     }
 }
+#endif

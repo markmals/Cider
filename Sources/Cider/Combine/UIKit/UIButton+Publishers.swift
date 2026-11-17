@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 //
 //  UIButton+Publishers.swift
 //
@@ -12,3 +13,4 @@ extension UIButton {
         publisher(for: .touchUpInside)
     }
 }
+#endif
