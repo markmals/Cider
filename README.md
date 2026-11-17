@@ -15,13 +15,15 @@ A Swift package for building UIKit and AppKit apps around `@Observable` models. 
 Every module builds for macOS, iOS, tvOS, visionOS and Mac Catalyst, with the platform exceptions noted below. Cider needs Swift 6.4 tools and OS 27. Add the package, then depend on `Cider` for everything or on the individual products you need:
 
 ```swift
-.package(url: "https://github.com/markmals/Cider", branch: "main")
+.package(url: "https://github.com/markmals/Cider", .upToNextMinor(from: "0.1.0"))
 ```
 
 ```swift
 .product(name: "Cider", package: "Cider")                 // import Cider
 .product(name: "UIObservationBinding", package: "Cider")  // import UIObservationBinding
 ```
+
+Until 1.0 a minor version can change the API, which is why the requirement stops at the next minor.
 
 Models are expected to be `@MainActor`. `updateProperties()` and bindings read them on the main actor, and a change made off it while one of those is reading goes unnoticed until something it read changes again.
 
