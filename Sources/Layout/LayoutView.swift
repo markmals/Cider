@@ -12,7 +12,9 @@ public typealias LayoutView = UIView
 extension LayoutView {
     /// Turns off autoresizing-mask translation and activates the built constraints.
     @discardableResult
-    public func layout(@ConstraintBuilder using constraints: (Self) -> [NSLayoutConstraint]) -> Self {
+    public func layout(@ConstraintBuilder using constraints: (Self) -> [NSLayoutConstraint])
+        -> Self
+    {
         translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate(constraints(self))
         return self

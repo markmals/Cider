@@ -15,7 +15,9 @@ public enum ConstraintBuilder {
         [expression]
     }
 
-    public static func buildExpression(_ expression: [NSLayoutConstraint]) -> [NSLayoutConstraint] {
+    public static func buildExpression(_ expression: [NSLayoutConstraint])
+        -> [NSLayoutConstraint]
+    {
         expression
     }
 
@@ -23,11 +25,15 @@ public enum ConstraintBuilder {
         component ?? []
     }
 
-    public static func buildEither(first component: [NSLayoutConstraint]) -> [NSLayoutConstraint] {
+    public static func buildEither(first component: [NSLayoutConstraint])
+        -> [NSLayoutConstraint]
+    {
         component
     }
 
-    public static func buildEither(second component: [NSLayoutConstraint]) -> [NSLayoutConstraint] {
+    public static func buildEither(second component: [NSLayoutConstraint])
+        -> [NSLayoutConstraint]
+    {
         component
     }
 

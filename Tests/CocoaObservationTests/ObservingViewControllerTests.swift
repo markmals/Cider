@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 import Testing
 
@@ -128,3 +129,4 @@ struct ObservingViewControllerTests {
         await settle()
     }
 }
+#endif

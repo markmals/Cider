@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 import Layout
 import Testing
@@ -73,3 +74,4 @@ struct LayoutTests {
         #expect(width.priority == .defaultHigh)
     }
 }
+#endif

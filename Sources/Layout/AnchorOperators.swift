@@ -100,8 +100,10 @@ public func ~ (
 #else
 /// Sets the constraint's priority and returns it. Set priority before activation: changing a
 /// required active constraint to optional, or back, throws an exception.
-public func ~ (constraint: NSLayoutConstraint, priority: UILayoutPriority) -> NSLayoutConstraint {
 @MainActor
+public func ~ (constraint: NSLayoutConstraint, priority: UILayoutPriority)
+    -> NSLayoutConstraint
+{
     constraint.priority = priority
     return constraint
 }

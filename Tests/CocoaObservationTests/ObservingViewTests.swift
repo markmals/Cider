@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 import Testing
 
@@ -60,3 +61,4 @@ struct ObservingViewTests {
         #expect(view.renders.last == 4)
     }
 }
+#endif

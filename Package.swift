@@ -2,6 +2,8 @@
 
 import PackageDescription
 
+let strict: [SwiftSetting] = [.treatAllWarnings(as: .error)]
+
 let package = Package(
     name: "Cider",
     platforms: [.iOS(.v27), .macCatalyst(.v27), .macOS(.v27), .tvOS(.v27), .visionOS(.v27)],
@@ -13,9 +15,14 @@ let package = Package(
     targets: [
         // Legacy UIKit helpers, frozen pending review; they only build in the Swift 5 language mode.
         .target(name: "Cider", swiftSettings: [.swiftLanguageMode(.v5)]),
-        .target(name: "CocoaObservation"),
-        .testTarget(name: "CocoaObservationTests", dependencies: ["CocoaObservation"]),
-        .target(name: "Layout"),
-        .testTarget(name: "LayoutTests", dependencies: ["Layout"]),
-    ]
+        .target(name: "CocoaObservation", swiftSettings: strict),
+        .testTarget(
+            name: "CocoaObservationTests",
+            dependencies: ["CocoaObservation"],
+            swiftSettings: strict
+        ),
+        .target(name: "Layout", swiftSettings: strict),
+        .testTarget(name: "LayoutTests", dependencies: ["Layout"], swiftSettings: strict),
+    ],
+    swiftLanguageModes: [.v6]
 )

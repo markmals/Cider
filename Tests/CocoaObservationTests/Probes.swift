@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 import CocoaObservation
 import Observation
@@ -80,3 +81,4 @@ func makeWindow() -> NSWindow {
         defer: true
     )
 }
+#endif

@@ -1,0 +1,60 @@
+#:schema https://mise.jdx.dev/schema/mise.json
+# mise owns the task graph, and CI runs these same tasks, so the local and CI gates can't drift.
+# swift, swift-format and xcodebuild come from the selected Xcode toolchain.
+
+[tools]
+actionlint = "1.7.12"
+
+[vars]
+# Legacy Cider keeps its original formatting until it's modernized or removed.
+formatted = "Package.swift Tests $(find Sources -mindepth 1 -maxdepth 1 -type d ! -name Cider)"
+
+[tasks.check]
+alias = "c"
+description = "The blocking gate: lint, then every test suite on macOS"
+depends = ["lint", "test"]
+
+[tasks.test]
+alias = "t"
+description = "Run every test suite on macOS"
+run = "swift test"
+
+[tasks."test:ios"]
+description = "Run every test suite on an iOS Simulator, covering the UIKit code paths"
+run = '''
+set -euo pipefail
+udid="${IOS_SIMULATOR_ID:-$(xcrun simctl list devices available --json \
+  | jq -r '[.devices[][] | select(.name | startswith("iPhone"))][0].udid')}"
+xcodebuild test -quiet -scheme Cider-Package -destination "id=$udid" -derivedDataPath .build/xcode
+'''
+
+[tasks."build:platforms"]
+description = "Build every library except legacy Cider for iOS, tvOS, visionOS and Mac Catalyst"
+run = '''
+set -euo pipefail
+# Legacy Cider has never built for tvOS. xcodebuild ignores the manifest's
+# treatAllWarnings(as: .error), so the build setting enforces it here. One destination per
+# invocation: given several, `xcodebuild build` builds nothing and still exits 0.
+products=$(swift package dump-package | jq -r '.products[].name | select(. != "Cider")')
+for platform in 'iOS Simulator' 'tvOS Simulator' 'visionOS Simulator' 'macOS,variant=Mac Catalyst'; do
+  for product in $products; do
+    echo "Building $product for $platform"
+    xcodebuild build -quiet -scheme "$product" -destination "generic/platform=$platform" \
+      -derivedDataPath .build/xcode SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
+  done
+done
+'''
+
+[tasks.fmt]
+alias = "f"
+description = "Format Swift sources in place"
+run = "swift format --in-place --recursive --parallel {{vars.formatted}}"
+
+[tasks.lint]
+alias = "l"
+description = "Lint Swift sources and GitHub workflows"
+# --strict: without it swift-format reports findings as warnings and still exits 0.
+run = [
+    "swift format lint --strict --recursive --parallel {{vars.formatted}}",
+    "actionlint",
+]
