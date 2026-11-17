@@ -1,10 +1,10 @@
-// swift-tools-version: 6.2
+// swift-tools-version: 6.4
 
 import PackageDescription
 
 let package = Package(
     name: "Cider",
-    platforms: [.iOS(.v14), .macCatalyst(.v14), .macOS(.v26), .tvOS(.v14), .watchOS(.v7)],
+    platforms: [.iOS(.v27), .macCatalyst(.v27), .macOS(.v27), .tvOS(.v27), .visionOS(.v27)],
     products: [
         .library(name: "Cider", targets: ["Cider"]),
         .library(name: "CocoaObservation", targets: ["CocoaObservation"]),
