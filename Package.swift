@@ -11,6 +11,7 @@ let package = Package(
         .library(name: "Cider", targets: ["Cider"]),
         .library(name: "CocoaObservation", targets: ["CocoaObservation"]),
         .library(name: "Configurable", targets: ["Configurable"]),
+        .library(name: "HexColor", targets: ["HexColor"]),
         .library(name: "Layout", targets: ["Layout"]),
     ],
     targets: [
@@ -28,6 +29,8 @@ let package = Package(
             dependencies: ["Configurable"],
             swiftSettings: strict
         ),
+        .target(name: "HexColor", swiftSettings: strict),
+        .testTarget(name: "HexColorTests", dependencies: ["HexColor"], swiftSettings: strict),
         .target(name: "Layout", swiftSettings: strict),
         .testTarget(name: "LayoutTests", dependencies: ["Layout"], swiftSettings: strict),
     ],
