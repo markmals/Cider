@@ -21,7 +21,7 @@ Cider is a SwiftPM package of independently importable modules for UIKit and App
 
 ## Contracts the tests hold
 
-- **Observation adapter** (`CocoaObservationTests`): first render, only properties read are tracked, dependency sets can change, synchronous changes coalesce, explicit invalidation and synchronous flush work, detach/reattach renders the latest state with one observation, deallocation, and invalidation requested during an update.
+- **Observation adapter** (`CocoaObservationTests`): first render, only properties read are tracked, dependency sets can change, synchronous changes coalesce, explicit invalidation and synchronous flush work, detach/reattach renders the latest state with one observation, a change pending at detach never renders, deallocation, and invalidation requested during an update.
 - **Bindings** (`UIObservationBindingTests`): a binding sets its value immediately and updates on a later main-actor turn, coalesces, skips equal values, is replaced when its key path is bound again, and ends with its object. Live expressions must capture models, never `self`, or the controller leaks through its own views. Two-way controls take a `UIBinding`: one from `$model` holds only the model, writes through a struct field land in the model, and local `@UIBinding` state is observable.
 - **LatestTask** (`LatestTaskTests`): a superseded or cancelled operation never delivers, even when it ignores cancellation, and every delivered error is a real failure.
 
@@ -53,3 +53,4 @@ Run `check` for every change. A change to UIKit code also needs `test:ios` and `
 - `xcodebuild build` given several `-destination` flags builds nothing and exits 0, and it ignores the manifest's `treatAllWarnings`.
 - AppKit controls send actions through `NSApp`, which a `swift test` process doesn't create; target-action tests call `NSApplication.shared` first.
 - Swift Testing's `#expect` treats a `rethrows` call with a key-path argument as throwing; pass a closure instead.
+- Releasing or cancelling a `withContinuousObservation` token still delivers one more callback when a change was already pending. A callback that must stop with its token needs its own check that the observation is still current.

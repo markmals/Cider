@@ -61,5 +61,24 @@ struct ObservingViewTests {
         view.updatePropertiesIfNeeded()
         #expect(view.renders.last == 4)
     }
+
+    @Test("a change pending at detach doesn't render out of the window or satisfy a later flush")
+    func pendingChangeAtDetach() async {
+        let model = ProbeModel()
+        let view = ProbeView(model: model)
+        let window = makeWindow()
+        window.contentView?.addSubview(view)
+        await wait { view.renders == [0] }
+
+        model.value = 1
+        view.removeFromSuperview()
+        await settle()
+        #expect(view.renders == [0])
+
+        model.value = 2
+        window.contentView?.addSubview(view)
+        view.updatePropertiesIfNeeded()
+        #expect(view.renders == [0, 2])
+    }
 }
 #endif

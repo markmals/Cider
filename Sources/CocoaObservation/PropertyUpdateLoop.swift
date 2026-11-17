@@ -8,6 +8,8 @@ final class PropertyUpdateLoop {
     private let invalidation = Invalidation()
     private let render: @MainActor () -> Void
     private var observation: ObservationTracking.Token?
+    /// Identifies the current observation, so a callback can tell that its own has since stopped.
+    private var epoch: UInt64 = 0
     private var needsUpdate = true
     private var isUpdating = false
 
@@ -17,8 +19,9 @@ final class PropertyUpdateLoop {
 
     func start() {
         guard observation == nil else { return }
+        let epoch = epoch
         observation = withContinuousObservation(options: [.willSet]) { [weak self] _ in
-            guard let self else { return }
+            guard let self, self.epoch == epoch else { return }
             _ = invalidation.generation
             update()
         }
@@ -26,6 +29,9 @@ final class PropertyUpdateLoop {
 
     func stop() {
         observation = nil
+        // Releasing the token doesn't stop the callback for a change that was already pending;
+        // moving the epoch on turns that callback into a no-op.
+        epoch &+= 1
         // Changes made while stopped go unobserved, so a flush before the restarted loop's first
         // turn must still render.
         needsUpdate = true
