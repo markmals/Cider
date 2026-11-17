@@ -1,6 +1,6 @@
 # Cider
 
-Swift packages for building UIKit and AppKit apps around `@Observable` models. Each module is its own library product, so a target imports only what it uses, and the `Cider` product re-exports all of them for a target that wants everything.
+A Swift package for building UIKit and AppKit apps around `@Observable` models. Each module is its own library product, so a target imports only what it uses; the `Cider` product re-exports all of them for a target that wants everything.
 
 | Module | Use |
 | --- | --- |
@@ -82,6 +82,8 @@ Capture models in a local, as `let counter = counter` does, and never through `s
 | UIKit | `UILabel(text:)`, `UIButton(title:action:)` | `UITextField(text:)`, `UISwitch(isOn:)`, `bind(text:)` on text fields and search bars, and `bind(_:to:sentBy:)` on any `UIControl` |
 | AppKit | `NSTextField(label:)`, `NSButton(title:action:)` | `NSTextField(text:)`, `NSButton(checkboxWithTitle:isOn:)`, `NSSwitch(isOn:)`, `bind(text:)` on text fields, and `bind(_:to:)` on any `NSControl` |
 
+tvOS has no `UISwitch`, and its search text field isn't a `UITextField`, so `UISwitch(isOn:)` and the search bar's `bind(text:)` aren't available there.
+
 `UIBinding` is SwiftUI's `Binding` for UIKit and AppKit, modeled on Point-Free's swift-navigation. Besides `$model.property`, `$model.filters.showsDrafts` reaches into a struct, `UIBinding(get:set:)` wraps any storage, `.constant(_:)` ignores writes, and `@UIBinding var isPlaying = false` declares local state that controls and live expressions observe. On AppKit, `bind(_:to:)` takes over the control's `target` and `action`; text fields use notifications instead, so their actions stay free.
 
 Bindings and `updateProperties()` run on the same observation machinery at different granularity. Bind a property when one expression determines it. Use `updateProperties()` when several properties must change together in one pass, or when the update adds and removes views.
@@ -111,7 +113,7 @@ let row = UIStackView(axis: .horizontal, alignment: .center, spacing: 12) {
     artwork.frame(60)
     UIStackView(axis: .vertical, spacing: 4) {
         titleLabel
-        if let author { UILabel(text: author.name) }
+        if showsAuthor { authorLabel }
     }
     UIView.spacer()
 }
@@ -140,6 +142,7 @@ import LatestTask
 @MainActor @Observable
 final class SearchModel {
     private(set) var results: [Recipe] = []
+    @ObservationIgnored private let service: RecipeService
     @ObservationIgnored private let latestSearch = LatestTask<[Recipe]>()
 
     func search(for query: String) {
@@ -152,16 +155,16 @@ final class SearchModel {
 }
 ```
 
-Starting an operation cancels the running one. A superseded or cancelled operation never reaches its completion, even if it ignores cancellation and finishes anyway, so a late response can't overwrite newer state. A delivered error is a real failure, never the expected cancellation. Deallocating the `LatestTask` cancels its work. The module imports no UI framework, so domain and feature targets can use it.
+Starting an operation cancels the running one. A superseded or cancelled operation never reaches its completion, even if it ignores cancellation and finishes anyway, so a late response can't overwrite newer state. A delivered error is a real failure, never the expected cancellation. Deallocating the `LatestTask` cancels its work. The module imports no UI framework, so domain and feature targets can use it, and `LatestTask::LatestTask` names the type wherever the module's name would make `LatestTask` ambiguous.
 
 ## HexColor
 
 ```swift
 import HexColor
 
-let accent = UIColor(hex: 0x1E90FF)
-let scrim = NSColor(hex: 0x000000, alpha: 0.4)
-let badge = Color(hex: 0xFF3B30, opacity: 0.9)
+let accent = UIColor(hex: 0x1E90FF)              // UIKit
+let scrim = NSColor(hex: 0x000000, alpha: 0.4)   // AppKit
+let badge = Color(hex: 0xFF3B30, opacity: 0.9)   // SwiftUI
 ```
 
 Each initializer reads a 24-bit `0xRRGGBB` value as sRGB, with alpha or opacity as its own argument. A wider value, such as `0xRRGGBBAA`, traps instead of shifting every channel.
@@ -170,9 +173,9 @@ Each initializer reads a 24-bit `0xRRGGBB` value as sRGB, with alpha or opacity 
 
 | Command | Runs |
 | --- | --- |
-| `mise run check` | swift-format and actionlint, then every test suite on macOS |
+| `mise run check` | swift-format, actionlint and the `Cider` re-export check, then every test suite on macOS |
 | `mise run test:ios` | Every test suite on an iOS Simulator, covering the UIKit code paths |
 | `mise run build:platforms` | Every library for iOS, tvOS, visionOS and Mac Catalyst, with warnings as errors |
 | `mise run fmt` | swift-format on every Swift source |
 
-CI runs the same three gates on every push to `main` and every pull request.
+CI runs the same three gates on every push to `main` and every pull request. [`AGENTS.md`](AGENTS.md) covers module boundaries, the contracts the tests hold, and the platform pitfalls found so far.
