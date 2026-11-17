@@ -22,7 +22,7 @@ Cider is a SwiftPM package of independently importable modules for UIKit and App
 ## Contracts the tests hold
 
 - **Observation adapter** (`CocoaObservationTests`): first render, only properties read are tracked, dependency sets can change, synchronous changes coalesce, explicit invalidation and synchronous flush work, detach/reattach renders the latest state with one observation, a change pending at detach never renders, deallocation, and invalidation requested during an update.
-- **Bindings** (`UIObservationBindingTests`): a binding sets its value immediately and updates on a later main-actor turn, coalesces, skips equal values, is replaced when its key path is bound again, never applies once replaced even with a change pending, and ends with its object. Live expressions must capture models, never `self`, or the controller leaks through its own views. Two-way controls take a `UIBinding`: one from `$model` holds only the model, writes through a struct field land in the model, and local `@UIBinding` state is observable. Rebinding a key path, one way or two, ends the earlier binding's write-back.
+- **Bindings** (`UIObservationBindingTests`): a binding sets its value immediately and updates on a later main-actor turn, coalesces, skips equal values, is replaced when its key path is bound again, never applies once replaced even with a change pending, and ends with its object. Live expressions must capture models, never `self`, or the controller leaks through its own views. Two-way controls take a `UIBinding`: one from `$model` holds only the model, writes through a struct field land in the model, and local `@UIBinding` state is observable. Rebinding a key path, one way or two, ends the earlier binding's write-back. A control built by a binding initializer rebinds through its own method, such as `bind(text:)`, on a subclass too.
 - **LatestTask** (`LatestTaskTests`): a superseded or cancelled operation never delivers, even when it ignores cancellation, and every delivered error is a real failure.
 
 A change that alters one of these needs its test updated in the same commit, along with the README.
@@ -47,7 +47,8 @@ Run `check` for every change. A change to UIKit code also needs `test:ios` and `
 
 ## Pitfalls already hit
 
-- A key path rooted in a convenience initializer's dynamic `Self` crashes at runtime with "could not demangle keypath type". Upcast first: `(self as UILabel).bind(\.text, to: …)`.
+- A key path rooted in a convenience initializer's dynamic `Self` crashes at runtime with "could not demangle keypath type". Name the root type, as `bind(text:)` does with `\UILabel.text`.
+- A key path's root type is part of its identity: `\TitleLabel.text` and `\UILabel.text` are different binding keys. Key a control's own bindings on the framework class. A key path's description is no identity at all: for equal key paths it differs between modules in optimized builds.
 - In an `NSObject` subclass, `#selector(Type.perform(_:))` resolves to NSObject's `performSelector:`. Name action methods something else.
 - UIKit's SDK isolates `NSLayoutAnchor` and `NSLayoutConstraint.priority` to the main actor, and AppKit's doesn't. Code that compiles on macOS can still warn on UIKit.
 - `xcodebuild build` given several `-destination` flags builds nothing and exits 0, and it ignores the manifest's `treatAllWarnings`.

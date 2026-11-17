@@ -74,15 +74,16 @@ Capture models in a local, as `let counter = counter` does, and never through `s
 
 - A binding sets its value immediately, then again on a later main-actor turn after the state it read changes. Synchronous changes coalesce, and an equal value isn't reassigned, so a text field keeps its selection.
 - Binding the same key path again replaces the earlier binding, which suits reused cells. The earlier binding never applies again, and a two-way one stops writing back, whether the new binding is one way or two. Every binding ends when its object deallocates.
+- A key path names its root type, so `\TitleLabel.text` doesn't replace a binding made through `\UILabel.text`. To rebind a control that one of the initializers below built, call its matching method, such as `label.bind(text:)` or `toggle.bind(isOn:)`: it replaces the initializer's binding on a subclass too.
 - `bind(to:_:)` drives anything a key path can't, such as a diffable data source: `dataSource.bind(to: model.snapshot) { $0.apply($1, animatingDifferences: true) }`.
 
 | Platform | One way | Two way |
 | --- | --- | --- |
 | Both | `bind(_:to:)` on any `NSObject` | |
-| UIKit | `UILabel(text:)`, `UIButton(title:action:)` | `UITextField(text:)`, `UISwitch(isOn:)`, `bind(text:)` on text fields and search bars, and `bind(_:to:sentBy:)` on any `UIControl` |
-| AppKit | `NSTextField(label:)`, `NSButton(title:action:)` | `NSTextField(text:)`, `NSButton(checkboxWithTitle:isOn:)`, `NSSwitch(isOn:)`, `bind(text:)` on text fields, and `bind(_:to:)` on any `NSControl` |
+| UIKit | `UILabel(text:)`, `UIButton(title:action:)`, and `bind(text:)` and `bind(title:)` to rebind them | `UITextField(text:)`, `UISwitch(isOn:)`, `bind(text:)` on text fields and search bars, `bind(isOn:)` on switches, and `bind(_:to:sentBy:)` on any `UIControl` |
+| AppKit | `NSTextField(label:)`, `NSButton(title:action:)`, and `bind(label:)` and `bind(title:)` to rebind them | `NSTextField(text:)`, `NSButton(checkboxWithTitle:isOn:)`, `NSSwitch(isOn:)`, `bind(text:)` on text fields, `bind(isOn:)` on checkboxes and switches, and `bind(_:to:)` on any `NSControl` |
 
-tvOS has no `UISwitch`, and its search text field isn't a `UITextField`, so `UISwitch(isOn:)` and the search bar's `bind(text:)` aren't available there.
+tvOS has no `UISwitch`, and its search text field isn't a `UITextField`, so the switch bindings and the search bar's `bind(text:)` aren't available there.
 
 `UIBinding` is SwiftUI's `Binding` for UIKit and AppKit, modeled on Point-Free's swift-navigation. Besides `$model.property`, `$model.filters.showsDrafts` reaches into a struct, `UIBinding(get:set:)` wraps any storage, `.constant(_:)` ignores writes, and `@UIBinding var isPlaying = false` declares local state that controls and live expressions observe. On AppKit, `bind(_:to:)` takes over the control's `target` and `action`; text fields use notifications instead, so their actions stay free.
 

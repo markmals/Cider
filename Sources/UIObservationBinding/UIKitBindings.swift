@@ -51,9 +51,14 @@ extension UILabel {
     /// A label whose text tracks `text`: `UILabel(text: "\(cart.count) items")`.
     public convenience init(text: @escaping @autoclosure @MainActor () -> String?) {
         self.init(frame: .zero)
-        // Through the concrete type: a key path rooted in an initializer's dynamic Self crashes
-        // at runtime ("could not demangle keypath type").
-        (self as UILabel).bind(\.text, to: text())
+        bind(text: text())
+    }
+
+    /// Makes the text track `text`, replacing what `init(text:)` or an earlier call bound. The
+    /// binding is keyed on `UILabel` whatever the label's class, so this replaces it on a
+    /// subclass too, where `bind(\.text, to:)` would add a second binding.
+    public func bind(text: @escaping @autoclosure @MainActor () -> String?) {
+        bind(\UILabel.text, to: text, writeBack: nil)
     }
 }
 
@@ -62,7 +67,15 @@ extension UIButton {
     public convenience init(title: @escaping @autoclosure @MainActor () -> String, action: UIAction)
     {
         self.init(type: .system, primaryAction: action)
-        sink(.named("title"), title) { button, title in button.setTitle(title, for: .normal) }
+        bind(title: title())
+    }
+
+    /// Makes the normal-state title track `title`, replacing what `init(title:action:)` or an
+    /// earlier call bound.
+    public func bind(title: @escaping @autoclosure @MainActor () -> String) {
+        sink(.named("title"), title) { button, newTitle in
+            button.setTitle(newTitle, for: .normal)
+        }
     }
 }
 
@@ -73,8 +86,9 @@ extension UITextField {
         bind(text: text)
     }
 
-    /// Binds the text two ways to `text`. Changes from the binding wait while the user is
-    /// composing marked text, such as an unfinished Japanese word.
+    /// Binds the text two ways to `text`, replacing what `init(text:)` or an earlier call bound.
+    /// Changes from the binding wait while the user is composing marked text, such as an
+    /// unfinished Japanese word.
     public func bind(text: UIBinding<String>) {
         let weakField = WeakReference(self)
         let writeBack = WriteBackAction(on: self, for: .editingChanged) {
@@ -94,7 +108,13 @@ extension UISwitch {
     /// A switch bound two ways to `isOn`.
     public convenience init(isOn: UIBinding<Bool>) {
         self.init(frame: .zero)
-        (self as UISwitch).bind(\.isOn, to: isOn, sentBy: .valueChanged)
+        bind(isOn: isOn)
+    }
+
+    /// Binds the switch two ways to `isOn`, replacing what `init(isOn:)` or an earlier call
+    /// bound, on a subclass too.
+    public func bind(isOn: UIBinding<Bool>) {
+        bind(\UISwitch.isOn, to: isOn, sentBy: .valueChanged)
     }
 }
 

@@ -14,7 +14,9 @@ extension ObservationBindable {
     /// whenever `@Observable` state that `value` read changes; synchronous changes coalesce.
     ///
     /// Binding the same key path again replaces the earlier binding, a two-way one's write-back
-    /// included, and every binding ends when this object deallocates.
+    /// included, and every binding ends when this object deallocates. A key path names its root
+    /// type, so `\TitleLabel.text` doesn't replace a binding made through `\UILabel.text`:
+    /// rebind through the same type, or through the control's own method, such as `bind(text:)`.
     @MainActor
     public func bind<Value>(
         _ keyPath: ReferenceWritableKeyPath<Self, Value>,

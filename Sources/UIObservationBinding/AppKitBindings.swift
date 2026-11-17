@@ -68,9 +68,14 @@ extension NSTextField {
     /// A non-editable label whose text tracks `label`: `NSTextField(label: "\(cart.count) items")`.
     public convenience init(label: @escaping @autoclosure @MainActor () -> String) {
         self.init(labelWithString: "")
-        // Through the concrete type: a key path rooted in an initializer's dynamic Self crashes
-        // at runtime ("could not demangle keypath type").
-        (self as NSTextField).bind(\.stringValue, to: label())
+        bind(label: label())
+    }
+
+    /// Makes the text track `label`, replacing what `init(label:)` or an earlier call bound.
+    /// The binding is keyed on `NSTextField` whatever the field's class, so this replaces it on
+    /// a subclass too, where `bind(\.stringValue, to:)` would add a second binding.
+    public func bind(label: @escaping @autoclosure @MainActor () -> String) {
+        bind(\NSTextField.stringValue, to: label, writeBack: nil)
     }
 
     /// An editable field bound two ways to `text`; edits write back as the user types.
@@ -80,8 +85,9 @@ extension NSTextField {
     }
 
     /// Binds the text two ways to `text`, without touching the field's `target`, `action` or
-    /// `delegate`. Changes from the binding wait while the user is composing marked text, such
-    /// as an unfinished Japanese word.
+    /// `delegate`, and replaces what `init(text:)`, `bind(label:)` or an earlier call bound.
+    /// Changes from the binding wait while the user is composing marked text, such as an
+    /// unfinished Japanese word.
     public func bind(text: UIBinding<String>) {
         let weakField = WeakReference(self)
         let writeBack: @MainActor () -> Void = {
@@ -129,14 +135,26 @@ extension NSButton {
         action: @escaping @MainActor () -> Void
     ) {
         self.init(title: "", target: nil, action: nil)
-        (self as NSButton).bind(\.title, to: title())
+        bind(title: title())
         bindingStore.add(takeOverAction(action))
+    }
+
+    /// Makes the title track `title`, replacing what `init(title:action:)` or an earlier call
+    /// bound, on a subclass too.
+    public func bind(title: @escaping @autoclosure @MainActor () -> String) {
+        bind(\NSButton.title, to: title, writeBack: nil)
     }
 
     /// A checkbox bound two ways to `isOn`.
     public convenience init(checkboxWithTitle title: String, isOn: UIBinding<Bool>) {
         self.init(checkboxWithTitle: title, target: nil, action: nil)
-        (self as NSButton).bindState(\.state, to: isOn)
+        bind(isOn: isOn)
+    }
+
+    /// Binds the state two ways to `isOn`, replacing what `init(checkboxWithTitle:isOn:)` or an
+    /// earlier call bound, on a subclass too. This takes over the button's `target` and `action`.
+    public func bind(isOn: UIBinding<Bool>) {
+        bindState(\NSButton.state, to: isOn)
     }
 }
 
@@ -144,7 +162,13 @@ extension NSSwitch {
     /// A switch bound two ways to `isOn`.
     public convenience init(isOn: UIBinding<Bool>) {
         self.init(frame: .zero)
-        (self as NSSwitch).bindState(\.state, to: isOn)
+        bind(isOn: isOn)
+    }
+
+    /// Binds the switch two ways to `isOn`, replacing what `init(isOn:)` or an earlier call
+    /// bound, on a subclass too. This takes over the switch's `target` and `action`.
+    public func bind(isOn: UIBinding<Bool>) {
+        bindState(\NSSwitch.state, to: isOn)
     }
 }
 #endif

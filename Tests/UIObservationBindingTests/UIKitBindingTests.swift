@@ -90,6 +90,38 @@ struct UIKitBindingTests {
         #expect(first.query == "")
     }
 
+    @Test("a subclassed label rebinds through bind(text:)")
+    func subclassedLabelRebinds() async {
+        let first = FormModel()
+        let second = FormModel()
+        second.title = "second"
+        let label = TitleLabel(text: first.title)
+        label.bind(text: second.title)
+        await settle()
+
+        first.title = "stale"
+        await settle()
+
+        #expect(label.text == "second")
+    }
+
+    @Test("a subclassed switch rebinds through bind(isOn:)")
+    func subclassedSwitchRebinds() async {
+        @UIBindable var first = FormModel()
+        @UIBindable var second = FormModel()
+        let toggle = FeatureSwitch(isOn: $first.isEnabled)
+        toggle.bind(isOn: $second.isEnabled)
+        await settle()
+
+        first.isEnabled = true
+        await settle()
+        #expect(!toggle.isOn)
+
+        toggle.isOn = true
+        toggle.sendActions(for: .valueChanged)
+        #expect(second.isEnabled)
+    }
+
     @Test("a button runs its action and follows its title")
     func button() async {
         let model = FormModel()
@@ -104,4 +136,8 @@ struct UIKitBindingTests {
         #expect(button.title(for: .normal) == "Count 1")
     }
 }
+
+private final class TitleLabel: UILabel {}
+
+private final class FeatureSwitch: UISwitch {}
 #endif

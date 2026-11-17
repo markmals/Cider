@@ -101,5 +101,41 @@ struct AppKitBindingTests {
 
         #expect(first.query == "")
     }
+
+    @Test("a subclassed label rebinds through bind(label:)")
+    func subclassedLabelRebinds() async {
+        let first = FormModel()
+        let second = FormModel()
+        second.title = "second"
+        let label = TitleField(label: first.title)
+        label.bind(label: second.title)
+        await settle()
+
+        first.title = "stale"
+        await settle()
+
+        #expect(label.stringValue == "second")
+    }
+
+    @Test("a subclassed switch rebinds through bind(isOn:)")
+    func subclassedSwitchRebinds() async {
+        @UIBindable var first = FormModel()
+        @UIBindable var second = FormModel()
+        let toggle = FeatureSwitch(isOn: $first.isEnabled)
+        toggle.bind(isOn: $second.isEnabled)
+        await settle()
+
+        first.isEnabled = true
+        await settle()
+        #expect(toggle.state == .off)
+
+        toggle.state = .on
+        toggle.sendAction(toggle.action, to: toggle.target)
+        #expect(second.isEnabled)
+    }
 }
+
+private final class TitleField: NSTextField {}
+
+private final class FeatureSwitch: NSSwitch {}
 #endif
