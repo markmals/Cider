@@ -66,3 +66,25 @@ Measured in a release build on Apple silicon, with 1,000 bindings reading one mo
 - A third of the setter's share pays for `TrackingCancellation`, which doubles what Observation registers for each binding. It earns that: a tracking left uncancelled keeps about 750 bytes, and costs about 2.5 µs inside a later setter, for every binding ever released.
 - If a profile shows a setter or a turn dominated by bindings, first move that screen's properties into one `updateProperties()`: one tracking costs one registration and one turn however many properties it writes. After that, batch the bindings. Each `BindingObservation` starts its own `Task` for every change; queueing them into one shared main-actor flush per turn took about 15% off both figures in a prototype.
 - `replaceArrangedSubviews(with:)` moves each view at most once and finds a misplaced view with a linear scan, so it's quadratic in the views that move. That suits a stack view of dozens of views, not a list of hundreds of rows.
+
+## Future directions
+
+Ideas that were discussed and set aside, not commitments. Each needs the owner's go-ahead and its open questions settled first.
+
+### Keyed loops in stack view builders
+
+`replaceArrangedSubviews(with:)` keeps a view in place only when it's handed the same view object again, so a caller that loops over model items has to keep a view for each item itself. A keyed loop in the builder, like SwiftUI's `ForEach`, would move that into `Layout`:
+
+```swift
+stack.replaceArrangedSubviews {
+    header
+    ForEach(model.items) { item in ItemRow(item: item) }
+    footer
+}
+```
+
+The stack view would remember the view it made for each `Identifiable` element's `id`, call the closure only for ids it hasn't seen, and reuse the rest; the existing diff then places them. Still open:
+
+- The name. `ForEach` collides with SwiftUI's in any file that imports both; `Each` or a lowercase `forEach(_:)` builder function would not.
+- What happens to a reused row whose element changed. Leaving it alone suits rows that observe their own `@Observable` model; value-type elements would need an optional `update:` closure.
+- How `SubviewBuilder` carries a keyed entry. It produces plain views today, and a keyed entry has to reach the stack view unresolved so the stack view can look up the view it already has.
