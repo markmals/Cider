@@ -6,19 +6,18 @@ Cider is a SwiftPM package of independently importable modules for UIKit and App
 
 | Module | Imports | Holds |
 | --- | --- | --- |
-| `Cider` | Every module below except `CiderLegacy` | Only `@_exported import`s, one per product |
+| `Cider` | Every other module | Only `@_exported import`s, one per product |
 | `CocoaObservation` | AppKit, Observation | `ObservingViewController`, `ObservingView`: AppKit's missing `updateProperties()` |
-| `UIObservationBinding` | UIKit or AppKit, Observation | Autoclosure bindings from `@Observable` state to control properties |
+| `UIObservationBinding` | UIKit or AppKit, Observation | Autoclosure bindings from `@Observable` state to control properties, and `UIBinding`/`@UIBindable` for two-way controls |
 | `Layout` | UIKit or AppKit | Constraint operators, `ConstraintBuilder`, view helpers, stack view builders |
 | `Configurable` | Foundation, plus UIKit or AppKit for conformances | `configure` and `configured` |
 | `LatestTask` | Swift only | `LatestTask` for feature models |
 | `HexColor` | UIKit or AppKit, SwiftUI | Hex color initializers |
 
-- Modules don't depend on each other. Add a dependency only when a module genuinely needs another's API, and say why in the commit.
-- A new product needs a line in `Sources/Cider/Cider.swift` and a dependency on the `Cider` target. `mise run lint` fails until both exist. `CiderLegacy` stays out, because its constraint operators clash with `Layout`'s.
+- Apart from `Cider`, modules don't depend on each other. Add a dependency only when a module genuinely needs another's API, and say why in the commit.
+- A new product needs a line in `Sources/Cider/Cider.swift` and a dependency on the `Cider` target. `mise run lint` fails without the line, and the build fails without the dependency.
 - `LatestTask` stays free of UI frameworks, because domain and feature targets import it. The module and its main type share a name, so qualify the type as `LatestTask::LatestTask` when it's ambiguous.
 - `CocoaObservation` stays AppKit-only. UIKit has a native `updateProperties()` on OS 26 and later, so don't build a UIKit version.
-- The `CiderLegacy` target, `Herald/` and `PodcastExample/` are frozen legacy code kept for reference. Don't edit, format or extend them. Bring a piece forward by porting it into a modern module, and only with the owner's agreement.
 
 ## Contracts the tests hold
 
@@ -31,16 +30,16 @@ A change that alters one of these needs its test updated in the same commit, alo
 ## Gates
 
 ```sh
-mise run check            # swift-format, actionlint, every suite on macOS
+mise run check            # swift-format, actionlint, Cider's re-exports, every suite on macOS
 mise run test:ios         # every suite on an iOS Simulator
-mise run build:platforms  # each modern library for iOS, tvOS, visionOS, Mac Catalyst
+mise run build:platforms  # every library for iOS, tvOS, visionOS, Mac Catalyst
 ```
 
 Run `check` for every change. A change to UIKit code also needs `test:ios` and `build:platforms`, because `swift test` only compiles the macOS side. CI runs all three.
 
 ## Conventions
 
-- Swift 6 language mode, Swift 6.4 tools and an OS 27 floor. Every modern target treats warnings as errors through `strict` in `Package.swift`.
+- Swift 6 language mode, Swift 6.4 tools and an OS 27 floor. Every target treats warnings as errors through `strict` in `Package.swift`.
 - Gate platform code with `#if os(macOS)` for AppKit and `#elseif os(iOS) || os(tvOS) || os(visionOS)` for UIKit. Mac Catalyst is `os(iOS)`.
 - Tests use Swift Testing. Shared polling helpers live in `TestSupport`; gate AppKit test files with `#if os(macOS)` and UIKit ones with the UIKit condition.
 - Format with `mise run fmt` before committing.
