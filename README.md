@@ -8,7 +8,7 @@ Swift packages for building UIKit and AppKit apps around `@Observable` models. E
 | `UIObservationBinding` | macOS, iOS, tvOS, visionOS, Mac Catalyst | Solid-style bindings from `@Observable` state to individual control properties, one way or two. |
 | `Layout` | macOS, iOS, tvOS, visionOS, Mac Catalyst | An Auto Layout DSL, plus result-builder stack views. |
 | `Configurable` | All | `configure { }` for objects and `configured { }` for value types. |
-| `Cancellation` | All | `LatestTask`, which runs one async operation at a time for a feature model and drops superseded results. |
+| `LatestTask` | All | `LatestTask`, which runs one async operation at a time for a feature model and drops superseded results. |
 | `HexColor` | macOS, iOS, tvOS, visionOS, Mac Catalyst | `UIColor`, `NSColor` and SwiftUI `Color` from a `0xRRGGBB` literal. |
 | `Cider` | iOS, Mac Catalyst | Legacy UIKit and Combine helpers from 2023, kept for reference until each piece is either modernized or removed. |
 
@@ -131,10 +131,10 @@ let buy = UIButton().configure {
 
 Every `NSObject` gets `configure(_:)`, which sets the instance up in place and returns it. `ValueConfigurable` types get `configured(_:)`, which returns a changed copy and leaves the original alone. Diffable data source snapshots and UIKit's button, list content and background configurations conform already; conform your own value types directly.
 
-## Cancellation
+## LatestTask
 
 ```swift
-import Cancellation
+import LatestTask
 
 @MainActor @Observable
 final class SearchModel {

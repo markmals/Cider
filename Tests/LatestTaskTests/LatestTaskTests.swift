@@ -1,4 +1,4 @@
-import Cancellation
+import LatestTask
 import TestSupport
 import Testing
 

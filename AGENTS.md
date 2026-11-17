@@ -10,11 +10,11 @@ Cider is a SwiftPM package of independently importable modules for UIKit and App
 | `UIObservationBinding` | UIKit or AppKit, Observation | Autoclosure bindings from `@Observable` state to control properties |
 | `Layout` | UIKit or AppKit | Constraint operators, `ConstraintBuilder`, view helpers, stack view builders |
 | `Configurable` | Foundation, plus UIKit or AppKit for conformances | `configure` and `configured` |
-| `Cancellation` | Swift only | `LatestTask` for feature models |
+| `LatestTask` | Swift only | `LatestTask` for feature models |
 | `HexColor` | UIKit or AppKit, SwiftUI | Hex color initializers |
 
 - Modules don't depend on each other. Add a dependency only when a module genuinely needs another's API, and say why in the commit.
-- `Cancellation` stays free of UI frameworks, because domain and feature targets import it.
+- `LatestTask` stays free of UI frameworks, because domain and feature targets import it. The module and its main type share a name, so qualify the type as `LatestTask::LatestTask` when it's ambiguous.
 - `CocoaObservation` stays AppKit-only. UIKit has a native `updateProperties()` on OS 26 and later, so don't build a UIKit version.
 - The `Cider` target, `Herald/` and `PodcastExample/` are frozen legacy code kept for reference. Don't edit, format or extend them. Bring a piece forward by porting it into a modern module, and only with the owner's agreement.
 
@@ -22,7 +22,7 @@ Cider is a SwiftPM package of independently importable modules for UIKit and App
 
 - **Observation adapter** (`CocoaObservationTests`): first render, only properties read are tracked, dependency sets can change, synchronous changes coalesce, explicit invalidation and synchronous flush work, detach/reattach renders the latest state with one observation, deallocation, and invalidation requested during an update.
 - **Bindings** (`UIObservationBindingTests`): a binding sets its value immediately and updates on a later main-actor turn, coalesces, skips equal values, is replaced when its key path is bound again, and ends with its object. Live expressions must capture models, never `self`, or the controller leaks through its own views. Two-way controls take a `UIBinding`: one from `$model` holds only the model, writes through a struct field land in the model, and local `@UIBinding` state is observable.
-- **LatestTask** (`CancellationTests`): a superseded or cancelled operation never delivers, even when it ignores cancellation, and every delivered error is a real failure.
+- **LatestTask** (`LatestTaskTests`): a superseded or cancelled operation never delivers, even when it ignores cancellation, and every delivered error is a real failure.
 
 A change that alters one of these needs its test updated in the same commit, along with the README.
 
