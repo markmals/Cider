@@ -14,10 +14,9 @@ extension ObservationBindable where Self: UIControl {
         to binding: UIBinding<Value>,
         sentBy event: UIControl.Event
     ) {
-        let control = WeakReference(self)
-        let writeBack = WriteBackAction(on: self, for: event) {
-            guard let control = control.value else { return }
-            binding.wrappedValue = control[keyPath: keyPath]
+        let writeBack = WriteBackAction(on: self, for: event) { [weak self] in
+            guard let self else { return }
+            binding.wrappedValue = self[keyPath: keyPath]
         }
         bind(keyPath, to: { binding.wrappedValue }, writeBack: writeBack)
     }
@@ -90,10 +89,9 @@ extension UITextField {
     /// Changes from the binding wait while the user is composing marked text, such as an
     /// unfinished Japanese word.
     public func bind(text: UIBinding<String>) {
-        let weakField = WeakReference(self)
-        let writeBack = WriteBackAction(on: self, for: .editingChanged) {
-            guard let field = weakField.value else { return }
-            text.wrappedValue = field.text ?? ""
+        let writeBack = WriteBackAction(on: self, for: .editingChanged) { [weak self] in
+            guard let self else { return }
+            text.wrappedValue = self.text ?? ""
         }
         let current: @MainActor () -> String = { text.wrappedValue }
         sink(.value(\UITextField.text), current, writeBack: writeBack) { field, newText in

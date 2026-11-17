@@ -84,10 +84,9 @@ extension ObservationBindable {
         _ value: @escaping @MainActor () -> Value,
         _ apply: @escaping @MainActor (Self, Value) -> Void
     ) -> AnyObject {
-        let object = WeakReference(self)
-        return BindingObservation(value) { newValue in
-            guard let object = object.value else { return }
-            apply(object, newValue)
+        BindingObservation(value) { [weak self] newValue in
+            guard let self else { return }
+            apply(self, newValue)
         }
     }
 }

@@ -14,10 +14,9 @@ extension ObservationBindable where Self: NSControl {
         _ keyPath: ReferenceWritableKeyPath<Self, Value>,
         to binding: UIBinding<Value>
     ) {
-        let control = WeakReference(self)
-        let target = takeOverAction {
-            guard let control = control.value else { return }
-            binding.wrappedValue = control[keyPath: keyPath]
+        let target = takeOverAction { [weak self] in
+            guard let self else { return }
+            binding.wrappedValue = self[keyPath: keyPath]
         }
         bind(keyPath, to: { binding.wrappedValue }, writeBack: target)
     }
@@ -27,10 +26,9 @@ extension ObservationBindable where Self: NSControl {
         _ state: ReferenceWritableKeyPath<Self, NSControl.StateValue>,
         to isOn: UIBinding<Bool>
     ) {
-        let control = WeakReference(self)
-        let target = takeOverAction {
-            guard let control = control.value else { return }
-            isOn.wrappedValue = control[keyPath: state] == .on
+        let target = takeOverAction { [weak self] in
+            guard let self else { return }
+            isOn.wrappedValue = self[keyPath: state] == .on
         }
         bind(state, to: { isOn.wrappedValue ? .on : .off }, writeBack: target)
     }
@@ -89,10 +87,9 @@ extension NSTextField {
     /// Changes from the binding wait while the user is composing marked text, such as an
     /// unfinished Japanese word.
     public func bind(text: UIBinding<String>) {
-        let weakField = WeakReference(self)
-        let writeBack: @MainActor () -> Void = {
-            guard let field = weakField.value else { return }
-            text.wrappedValue = field.stringValue
+        let writeBack: @MainActor () -> Void = { [weak self] in
+            guard let self else { return }
+            text.wrappedValue = self.stringValue
         }
         let changes = NotificationCenter.default.addObserver(
             forName: NSControl.textDidChangeNotification,

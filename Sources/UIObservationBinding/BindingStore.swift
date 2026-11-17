@@ -23,16 +23,6 @@ final class BindingStore {
     }
 }
 
-/// Lets a `@Sendable` observation closure refer to its object without retaining it.
-final class WeakReference<Object: AnyObject>: @unchecked Sendable {
-    // Unchecked: only read on the main actor, inside observation closures isolated to it.
-    private(set) weak var value: Object?
-
-    init(_ value: Object) {
-        self.value = value
-    }
-}
-
 private nonisolated(unsafe) var bindingStoreKey: UInt8 = 0
 
 extension ObservationBindable {
