@@ -6,8 +6,8 @@
 actionlint = "1.7.12"
 
 [vars]
-# Legacy Cider keeps its original formatting until it's modernized or removed.
-formatted = "Package.swift Tests $(find Sources -mindepth 1 -maxdepth 1 -type d ! -name Cider)"
+# CiderLegacy keeps its original formatting until it's modernized or removed.
+formatted = "Package.swift Tests $(find Sources -mindepth 1 -maxdepth 1 -type d ! -name CiderLegacy)"
 
 [tasks.check]
 alias = "c"
@@ -29,13 +29,13 @@ xcodebuild test -quiet -scheme Cider-Package -destination "id=$udid" -derivedDat
 '''
 
 [tasks."build:platforms"]
-description = "Build every library except legacy Cider for iOS, tvOS, visionOS and Mac Catalyst"
+description = "Build every library except CiderLegacy for iOS, tvOS, visionOS and Mac Catalyst"
 run = '''
 set -euo pipefail
-# Legacy Cider has never built for tvOS. xcodebuild ignores the manifest's
+# CiderLegacy has never built for tvOS. xcodebuild ignores the manifest's
 # treatAllWarnings(as: .error), so the build setting enforces it here. One destination per
 # invocation: given several, `xcodebuild build` builds nothing and still exits 0.
-products=$(swift package dump-package | jq -r '.products[].name | select(. != "Cider")')
+products=$(swift package dump-package | jq -r '.products[].name | select(. != "CiderLegacy")')
 for platform in 'iOS Simulator' 'tvOS Simulator' 'visionOS Simulator' 'macOS,variant=Mac Catalyst'; do
   for product in $products; do
     echo "Building $product for $platform"

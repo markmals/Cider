@@ -10,7 +10,7 @@ Swift packages for building UIKit and AppKit apps around `@Observable` models. E
 | `Configurable` | All | `configure { }` for objects and `configured { }` for value types. |
 | `LatestTask` | All | `LatestTask`, which runs one async operation at a time for a feature model and drops superseded results. |
 | `HexColor` | macOS, iOS, tvOS, visionOS, Mac Catalyst | `UIColor`, `NSColor` and SwiftUI `Color` from a `0xRRGGBB` literal. |
-| `Cider` | iOS, Mac Catalyst | Legacy UIKit and Combine helpers from 2023, kept for reference until each piece is either modernized or removed. |
+| `CiderLegacy` | iOS, Mac Catalyst | Legacy UIKit and Combine helpers from 2023, kept for reference until each piece is either modernized or removed. |
 
 Cider needs Swift 6.4 tools and OS 27. Add the package and depend on the products you need:
 
@@ -165,9 +165,9 @@ let badge = Color(hex: 0xFF3B30, opacity: 0.9)
 
 Each initializer reads a 24-bit `0xRRGGBB` value as sRGB, with alpha or opacity as its own argument. A wider value, such as `0xRRGGBBAA`, traps instead of shifting every channel.
 
-## Legacy Cider
+## CiderLegacy
 
-The `Cider` product holds the original 2023 helpers, mostly Combine publishers and subscribers for UIKit controls. Each is kept for reference until it's modernized or removed. It builds only for UIKit platforms in the Swift 5 language mode, and it has never built for tvOS. `Herald/` and `PodcastExample/` are kept for the same reason and aren't part of the package build.
+The `CiderLegacy` product holds the original 2023 helpers, mostly Combine publishers and subscribers for UIKit controls. Each is kept for reference until it's modernized or removed. It builds only for UIKit platforms in the Swift 5 language mode, and it has never built for tvOS. `Herald/` and `PodcastExample/` are kept for the same reason and aren't part of the package build.
 
 ## Development
 
@@ -175,7 +175,7 @@ The `Cider` product holds the original 2023 helpers, mostly Combine publishers a
 | --- | --- |
 | `mise run check` | swift-format and actionlint, then every test suite on macOS |
 | `mise run test:ios` | Every test suite on an iOS Simulator, covering the UIKit code paths |
-| `mise run build:platforms` | Each library except legacy Cider for iOS, tvOS, visionOS and Mac Catalyst, with warnings as errors |
+| `mise run build:platforms` | Each library except `CiderLegacy` for iOS, tvOS, visionOS and Mac Catalyst, with warnings as errors |
 | `mise run fmt` | swift-format on every modern source |
 
 CI runs the same three gates on every push to `main` and every pull request.

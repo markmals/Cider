@@ -16,7 +16,7 @@ Cider is a SwiftPM package of independently importable modules for UIKit and App
 - Modules don't depend on each other. Add a dependency only when a module genuinely needs another's API, and say why in the commit.
 - `LatestTask` stays free of UI frameworks, because domain and feature targets import it. The module and its main type share a name, so qualify the type as `LatestTask::LatestTask` when it's ambiguous.
 - `CocoaObservation` stays AppKit-only. UIKit has a native `updateProperties()` on OS 26 and later, so don't build a UIKit version.
-- The `Cider` target, `Herald/` and `PodcastExample/` are frozen legacy code kept for reference. Don't edit, format or extend them. Bring a piece forward by porting it into a modern module, and only with the owner's agreement.
+- The `CiderLegacy` target, `Herald/` and `PodcastExample/` are frozen legacy code kept for reference. Don't edit, format or extend them. Bring a piece forward by porting it into a modern module, and only with the owner's agreement.
 
 ## Contracts the tests hold
 
