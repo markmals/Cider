@@ -1,5 +1,4 @@
 import Foundation
-import Observation
 
 /// An object whose properties can track `@Observable` state. Every `NSObject` is one.
 ///
@@ -71,11 +70,9 @@ extension ObservationBindable {
         // control is complete before anyone measures or shows it.
         apply(self, value())
         let object = WeakReference(self)
-        return BindingObservation(
-            withContinuousObservation(options: [.willSet]) { _ in
-                guard let object = object.value else { return }
-                apply(object, value())
-            }
-        )
+        return BindingObservation {
+            guard let object = object.value else { return }
+            apply(object, value())
+        }
     }
 }

@@ -51,6 +51,24 @@ struct BindingTests {
         #expect(counter.text == "fresh")
     }
 
+    @Test("a replaced binding doesn't apply a change that was pending when it was replaced")
+    func replacedBindingIgnoresPendingChange() async {
+        let first = FormModel()
+        let second = FormModel()
+        second.title = "fresh"
+        let counter = WriteCounter()
+        counter.bind(\.text, to: first.title)
+        await settle()
+
+        first.title = "stale"
+        counter.bind(\.text, to: second.title)
+        await settle()
+
+        // The stale value must never land, whichever of the two bindings' turns runs first.
+        #expect(counter.text == "fresh")
+        #expect(counter.writes == 2)
+    }
+
     @Test("doesn't keep its object alive, and ends when the object goes")
     func objectLifetime() async {
         let model = FormModel()

@@ -22,12 +22,19 @@ final class BindingStore {
     }
 }
 
-/// Holds a continuous observation; releasing it ends the observation.
+/// Runs an update under continuous observation until released.
 final class BindingObservation {
-    private let token: ObservationTracking.Token
+    private var token: ObservationTracking.Token?
 
-    init(_ token: consuming ObservationTracking.Token) {
-        self.token = token
+    @MainActor
+    init(_ update: @escaping @MainActor () -> Void) {
+        let observation = WeakReference(self)
+        token = withContinuousObservation(options: [.willSet]) { _ in
+            // Releasing the token doesn't stop the callback for a change that was already
+            // pending, so a binding that has been replaced must ignore it.
+            guard observation.value != nil else { return }
+            update()
+        }
     }
 }
 
