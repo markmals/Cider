@@ -14,12 +14,12 @@ extension ObservationBindable where Self: NSControl {
         _ keyPath: ReferenceWritableKeyPath<Self, Value>,
         to binding: UIBinding<Value>
     ) {
-        bind(keyPath, to: binding.wrappedValue)
         let control = WeakReference(self)
-        setAction {
+        let target = takeOverAction {
             guard let control = control.value else { return }
             binding.wrappedValue = control[keyPath: keyPath]
         }
+        bind(keyPath, to: { binding.wrappedValue }, writeBack: target)
     }
 
     @MainActor
@@ -27,20 +27,22 @@ extension ObservationBindable where Self: NSControl {
         _ state: ReferenceWritableKeyPath<Self, NSControl.StateValue>,
         to isOn: UIBinding<Bool>
     ) {
-        bind(state, to: isOn.wrappedValue ? .on : .off)
         let control = WeakReference(self)
-        setAction {
+        let target = takeOverAction {
             guard let control = control.value else { return }
             isOn.wrappedValue = control[keyPath: state] == .on
         }
+        bind(state, to: { isOn.wrappedValue ? .on : .off }, writeBack: target)
     }
 
+    /// Points the control's `target` and `action` at `handler`. The control holds its target
+    /// weakly: the caller keeps the returned target alive, and releasing it ends the action.
     @MainActor
-    fileprivate func setAction(_ handler: @escaping @MainActor () -> Void) {
+    fileprivate func takeOverAction(_ handler: @escaping @MainActor () -> Void) -> ActionTarget {
         let target = ActionTarget(handler)
         self.target = target
         action = #selector(ActionTarget.performAction(_:))
-        bindingStore.set(target, for: .named("action"))
+        return target
     }
 }
 
@@ -54,8 +56,10 @@ private final class ActionTarget: NSObject {
         self.handler = handler
     }
 
-    // Not perform(_:): #selector would resolve that to NSObject's performSelector:.
-    @objc func performAction(_ sender: Any?) {
+    // Not perform(_:): #selector would resolve that to NSObject's performSelector:. Prefixed in
+    // Objective-C because the control keeps this action after a one-way rebind releases its
+    // target, and AppKit offers a targetless action to the responder chain.
+    @objc(cider_performAction:) func performAction(_ sender: Any?) {
         handler()
     }
 }
@@ -79,15 +83,9 @@ extension NSTextField {
     /// `delegate`. Changes from the binding wait while the user is composing marked text, such
     /// as an unfinished Japanese word.
     public func bind(text: UIBinding<String>) {
-        let current: @MainActor () -> String = { text.wrappedValue }
-        sink(.value(\NSTextField.stringValue), current) { field, newText in
-            let isComposing = (field.currentEditor() as? NSTextView)?.hasMarkedText() ?? false
-            guard !isComposing, field.stringValue != newText else { return }
-            field.stringValue = newText
-        }
-        let field = WeakReference(self)
+        let weakField = WeakReference(self)
         let writeBack: @MainActor () -> Void = {
-            guard let field = field.value else { return }
+            guard let field = weakField.value else { return }
             text.wrappedValue = field.stringValue
         }
         let changes = NotificationCenter.default.addObserver(
@@ -97,7 +95,16 @@ extension NSTextField {
         ) { _ in
             MainActor.assumeIsolated(writeBack)
         }
-        bindingStore.set(NotificationObservation(changes), for: .named("textChanges"))
+        let current: @MainActor () -> String = { text.wrappedValue }
+        sink(
+            .value(\NSTextField.stringValue),
+            current,
+            writeBack: NotificationObservation(changes)
+        ) { field, newText in
+            let isComposing = (field.currentEditor() as? NSTextView)?.hasMarkedText() ?? false
+            guard !isComposing, field.stringValue != newText else { return }
+            field.stringValue = newText
+        }
     }
 }
 
@@ -123,7 +130,7 @@ extension NSButton {
     ) {
         self.init(title: "", target: nil, action: nil)
         (self as NSButton).bind(\.title, to: title())
-        setAction(action)
+        bindingStore.add(takeOverAction(action))
     }
 
     /// A checkbox bound two ways to `isOn`.

@@ -74,5 +74,32 @@ struct AppKitBindingTests {
         slider.sendAction(slider.action, to: slider.target)
         #expect(model.volume == 8)
     }
+
+    @Test("rebinding a control one way ends its earlier binding's write-back")
+    func oneWayRebindEndsAction() {
+        @UIBindable var first = FormModel()
+        let second = FormModel()
+        let slider = NSSlider(value: 0, minValue: 0, maxValue: 10, target: nil, action: nil)
+        slider.bind(\.doubleValue, to: $first.volume)
+        slider.bind(\.doubleValue, to: second.volume)
+
+        slider.doubleValue = 8
+        slider.sendAction(slider.action, to: slider.target)
+
+        #expect(first.volume == 5)
+    }
+
+    @Test("rebinding a text field one way ends its earlier binding's write-back")
+    func oneWayRebindEndsTextWriteBack() {
+        @UIBindable var first = FormModel()
+        let second = FormModel()
+        let field = NSTextField(text: $first.query)
+        field.bind(\.stringValue, to: second.title)
+
+        field.stringValue = "typed"
+        NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: field)
+
+        #expect(first.query == "")
+    }
 }
 #endif

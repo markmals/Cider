@@ -73,7 +73,7 @@ final class CounterViewController: UIViewController {
 Capture models in a local, as `let counter = counter` does, and never through `self`. A live expression that reads `self.counter` keeps the controller alive through its own view: controller → view → label → binding → controller. `UIAction` handlers need the same rule. `$counter.isLimited` is safe as written: the binding holds the model, not the controller.
 
 - A binding sets its value immediately, then again on a later main-actor turn after the state it read changes. Synchronous changes coalesce, and an equal value isn't reassigned, so a text field keeps its selection.
-- Binding the same key path again replaces the earlier binding, which suits reused cells. Every binding ends when its object deallocates.
+- Binding the same key path again replaces the earlier binding, which suits reused cells. The earlier binding never applies again, and a two-way one stops writing back, whether the new binding is one way or two. Every binding ends when its object deallocates.
 - `bind(to:_:)` drives anything a key path can't, such as a diffable data source: `dataSource.bind(to: model.snapshot) { $0.apply($1, animatingDifferences: true) }`.
 
 | Platform | One way | Two way |

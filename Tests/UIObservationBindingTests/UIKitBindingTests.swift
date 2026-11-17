@@ -61,6 +61,35 @@ struct UIKitBindingTests {
         #expect(second.query == "pie")
     }
 
+    // The initializer forms its key path inside UIObservationBinding and this test forms an
+    // equal one here; the write-back must be replaced all the same, in optimized builds too.
+    @Test("rebinding a switch built by UISwitch(isOn:) moves its write-back to the new binding")
+    func rebindingInitializedSwitchReplacesAction() {
+        @UIBindable var first = FormModel()
+        @UIBindable var second = FormModel()
+        let toggle = UISwitch(isOn: $first.isEnabled)
+        toggle.bind(\.isOn, to: $second.isEnabled, sentBy: .valueChanged)
+
+        toggle.isOn = true
+        toggle.sendActions(for: .valueChanged)
+
+        #expect(!first.isEnabled)
+        #expect(second.isEnabled)
+    }
+
+    @Test("rebinding a control one way ends its earlier binding's write-back")
+    func oneWayRebindEndsAction() {
+        @UIBindable var first = FormModel()
+        let second = FormModel()
+        let field = UITextField(text: $first.query)
+        field.bind(\.text, to: second.title)
+
+        field.text = "typed"
+        field.sendActions(for: .editingChanged)
+
+        #expect(first.query == "")
+    }
+
     @Test("a button runs its action and follows its title")
     func button() async {
         let model = FormModel()

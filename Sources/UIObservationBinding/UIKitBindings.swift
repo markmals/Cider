@@ -14,22 +14,36 @@ extension ObservationBindable where Self: UIControl {
         to binding: UIBinding<Value>,
         sentBy event: UIControl.Event
     ) {
-        bind(keyPath, to: binding.wrappedValue)
         let control = WeakReference(self)
-        addAction(
-            UIAction(identifier: .binding(keyPath)) { _ in
-                guard let control = control.value else { return }
-                binding.wrappedValue = control[keyPath: keyPath]
-            },
-            for: event
-        )
+        let writeBack = WriteBackAction(on: self, for: event) {
+            guard let control = control.value else { return }
+            binding.wrappedValue = control[keyPath: keyPath]
+        }
+        bind(keyPath, to: { binding.wrappedValue }, writeBack: writeBack)
     }
 }
 
-extension UIAction.Identifier {
-    /// One identifier per bound key path, so binding it again replaces the earlier action.
-    fileprivate static func binding(_ keyPath: AnyKeyPath) -> Self {
-        Self("UIObservationBinding \(keyPath)")
+/// A control action that writes the control's value back to a model. Releasing it removes the
+/// action from the control, which is how replacing a binding ends its write-back.
+@MainActor
+private final class WriteBackAction {
+    private weak var control: UIControl?
+    private let action: UIAction
+    private let event: UIControl.Event
+
+    init(
+        on control: UIControl,
+        for event: UIControl.Event,
+        _ write: @escaping @MainActor () -> Void
+    ) {
+        self.control = control
+        self.event = event
+        action = UIAction { _ in write() }
+        control.addAction(action, for: event)
+    }
+
+    isolated deinit {
+        control?.removeAction(action, for: event)
     }
 }
 
@@ -62,19 +76,16 @@ extension UITextField {
     /// Binds the text two ways to `text`. Changes from the binding wait while the user is
     /// composing marked text, such as an unfinished Japanese word.
     public func bind(text: UIBinding<String>) {
+        let weakField = WeakReference(self)
+        let writeBack = WriteBackAction(on: self, for: .editingChanged) {
+            guard let field = weakField.value else { return }
+            text.wrappedValue = field.text ?? ""
+        }
         let current: @MainActor () -> String = { text.wrappedValue }
-        sink(.value(\UITextField.text), current) { field, newText in
+        sink(.value(\UITextField.text), current, writeBack: writeBack) { field, newText in
             guard field.markedTextRange == nil, field.text != newText else { return }
             field.text = newText
         }
-        let field = WeakReference(self)
-        addAction(
-            UIAction(identifier: .binding(\UITextField.text)) { _ in
-                guard let field = field.value else { return }
-                text.wrappedValue = field.text ?? ""
-            },
-            for: .editingChanged
-        )
     }
 }
 

@@ -13,8 +13,8 @@ extension ObservationBindable {
     /// Keeps `keyPath` equal to `value`. It's set now, then again on a later main-actor turn
     /// whenever `@Observable` state that `value` read changes; synchronous changes coalesce.
     ///
-    /// Binding the same key path again replaces the earlier binding, and every binding ends when
-    /// this object deallocates.
+    /// Binding the same key path again replaces the earlier binding, a two-way one's write-back
+    /// included, and every binding ends when this object deallocates.
     @MainActor
     public func bind<Value>(
         _ keyPath: ReferenceWritableKeyPath<Self, Value>,
@@ -30,9 +30,7 @@ extension ObservationBindable {
         _ keyPath: ReferenceWritableKeyPath<Self, Value>,
         to value: @escaping @autoclosure @MainActor () -> Value
     ) {
-        sink(.value(keyPath), value) { object, newValue in
-            if object[keyPath: keyPath] != newValue { object[keyPath: keyPath] = newValue }
-        }
+        bind(keyPath, to: value, writeBack: nil)
     }
 
     /// Calls `apply` with `value` now, then whenever `@Observable` state that `value` read
@@ -52,13 +50,29 @@ extension ObservationBindable {
         bindingStore.add(observe(value, apply))
     }
 
+    /// The `Equatable` binding, with what writes the control's value back when it's two-way.
+    @MainActor
+    func bind<Value: Equatable>(
+        _ keyPath: ReferenceWritableKeyPath<Self, Value>,
+        to value: @escaping @MainActor () -> Value,
+        writeBack: AnyObject?
+    ) {
+        sink(.value(keyPath), value, writeBack: writeBack) { object, newValue in
+            if object[keyPath: keyPath] != newValue { object[keyPath: keyPath] = newValue }
+        }
+    }
+
+    /// Binds under `key`, replacing its earlier binding. `writeBack` is whatever sends a
+    /// control's value back to the model; it must stop when released, because the binding that
+    /// replaces this one releases it.
     @MainActor
     func sink<Value>(
         _ key: BindingKey,
         _ value: @escaping @MainActor () -> Value,
+        writeBack: AnyObject? = nil,
         _ apply: @escaping @MainActor (Self, Value) -> Void
     ) {
-        bindingStore.set(observe(value, apply), for: key)
+        bindingStore.set(observe(value, apply), writeBack: writeBack, for: key)
     }
 
     @MainActor

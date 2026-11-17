@@ -10,11 +10,13 @@ enum BindingKey: Hashable {
 /// when the object deallocates.
 @MainActor
 final class BindingStore {
-    private var keyed: [BindingKey: AnyObject] = [:]
+    private var keyed: [BindingKey: (observation: BindingObservation, writeBack: AnyObject?)] = [:]
     private var unkeyed: [AnyObject] = []
 
-    func set(_ part: AnyObject, for key: BindingKey) {
-        keyed[key] = part
+    /// Replaces the binding for `key`. Releasing the earlier one ends its observation and, if
+    /// it was two-way, whatever wrote the control's value back.
+    func set(_ observation: BindingObservation, writeBack: AnyObject?, for key: BindingKey) {
+        keyed[key] = (observation, writeBack)
     }
 
     func add(_ part: AnyObject) {
