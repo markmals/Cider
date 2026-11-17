@@ -3,6 +3,7 @@ import AppKit
 import Testing
 
 import CocoaObservation
+import TestSupport
 
 @MainActor
 @Suite("ObservingView", .timeLimit(.minutes(1)))

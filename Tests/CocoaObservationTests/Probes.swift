@@ -53,25 +53,6 @@ final class ProbeView: ObservingView {
     }
 }
 
-/// Spins the main actor until `condition` holds or about a second elapses, so the async
-/// `Observations` turn can land. Callers assert afterward; a timeout fails there.
-@MainActor
-func wait(until condition: () -> Bool) async {
-    for _ in 0..<500 where !condition() {
-        await Task.yield()
-        try? await Task.sleep(for: .milliseconds(2))
-    }
-}
-
-/// Gives a pending observation turn the chance to (wrongly) land before asserting none did.
-@MainActor
-func settle() async {
-    for _ in 0..<25 {
-        await Task.yield()
-        try? await Task.sleep(for: .milliseconds(2))
-    }
-}
-
 @MainActor
 func makeWindow() -> NSWindow {
     NSWindow(

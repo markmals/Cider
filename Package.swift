@@ -20,7 +20,7 @@ let package = Package(
         .target(name: "CocoaObservation", swiftSettings: strict),
         .testTarget(
             name: "CocoaObservationTests",
-            dependencies: ["CocoaObservation"],
+            dependencies: ["CocoaObservation", "TestSupport"],
             swiftSettings: strict
         ),
         .target(name: "Configurable", swiftSettings: strict),
@@ -33,6 +33,7 @@ let package = Package(
         .testTarget(name: "HexColorTests", dependencies: ["HexColor"], swiftSettings: strict),
         .target(name: "Layout", swiftSettings: strict),
         .testTarget(name: "LayoutTests", dependencies: ["Layout"], swiftSettings: strict),
+        .target(name: "TestSupport", path: "Tests/TestSupport", swiftSettings: strict),
     ],
     swiftLanguageModes: [.v6]
 )
