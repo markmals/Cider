@@ -1,0 +1,81 @@
+import Foundation
+import Observation
+
+/// An object whose properties can track `@Observable` state. Every `NSObject` is one.
+///
+/// Bound values are stored and re-evaluated, so capture models in locals rather than through
+/// `self`. A view controller binding a view to `self.model` keeps itself alive through its own
+/// view: controller → view → binding → controller.
+public protocol ObservationBindable: AnyObject {}
+
+extension NSObject: ObservationBindable {}
+
+extension ObservationBindable {
+    /// Keeps `keyPath` equal to `value`. It's set now, then again on a later main-actor turn
+    /// whenever `@Observable` state that `value` read changes; synchronous changes coalesce.
+    ///
+    /// Binding the same key path again replaces the earlier binding, and every binding ends when
+    /// this object deallocates.
+    @MainActor
+    public func bind<Value>(
+        _ keyPath: ReferenceWritableKeyPath<Self, Value>,
+        to value: @escaping @autoclosure @MainActor () -> Value
+    ) {
+        sink(.value(keyPath), value) { object, newValue in object[keyPath: keyPath] = newValue }
+    }
+
+    /// Keeps `keyPath` equal to `value`, like the general overload, but never reassigns an equal
+    /// value: a text field keeps its selection when an unrelated change re-runs `value`.
+    @MainActor
+    public func bind<Value: Equatable>(
+        _ keyPath: ReferenceWritableKeyPath<Self, Value>,
+        to value: @escaping @autoclosure @MainActor () -> Value
+    ) {
+        sink(.value(keyPath), value) { object, newValue in
+            if object[keyPath: keyPath] != newValue { object[keyPath: keyPath] = newValue }
+        }
+    }
+
+    /// Calls `apply` with `value` now, then whenever `@Observable` state that `value` read
+    /// changes. These bindings accumulate rather than replace each other; each ends when this
+    /// object deallocates.
+    ///
+    /// ```swift
+    /// dataSource.bind(to: model.snapshot) { dataSource, snapshot in
+    ///     dataSource.apply(snapshot, animatingDifferences: true)
+    /// }
+    /// ```
+    @MainActor
+    public func bind<Value>(
+        to value: @escaping @autoclosure @MainActor () -> Value,
+        _ apply: @escaping @MainActor (Self, Value) -> Void
+    ) {
+        bindingStore.add(observe(value, apply))
+    }
+
+    @MainActor
+    func sink<Value>(
+        _ key: BindingKey,
+        _ value: @escaping @MainActor () -> Value,
+        _ apply: @escaping @MainActor (Self, Value) -> Void
+    ) {
+        bindingStore.set(observe(value, apply), for: key)
+    }
+
+    @MainActor
+    private func observe<Value>(
+        _ value: @escaping @MainActor () -> Value,
+        _ apply: @escaping @MainActor (Self, Value) -> Void
+    ) -> BindingObservation {
+        // Continuous observation delivers its first value on a later turn; apply it now so a new
+        // control is complete before anyone measures or shows it.
+        apply(self, value())
+        let object = WeakReference(self)
+        return BindingObservation(
+            withContinuousObservation(options: [.willSet]) { _ in
+                guard let object = object.value else { return }
+                apply(object, value())
+            }
+        )
+    }
+}

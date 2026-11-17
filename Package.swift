@@ -14,6 +14,7 @@ let package = Package(
         .library(name: "Configurable", targets: ["Configurable"]),
         .library(name: "HexColor", targets: ["HexColor"]),
         .library(name: "Layout", targets: ["Layout"]),
+        .library(name: "UIObservationBinding", targets: ["UIObservationBinding"]),
     ],
     targets: [
         // Legacy UIKit helpers, frozen pending review; they only build in the Swift 5 language mode.
@@ -41,6 +42,12 @@ let package = Package(
         .target(name: "Layout", swiftSettings: strict),
         .testTarget(name: "LayoutTests", dependencies: ["Layout"], swiftSettings: strict),
         .target(name: "TestSupport", path: "Tests/TestSupport", swiftSettings: strict),
+        .target(name: "UIObservationBinding", swiftSettings: strict),
+        .testTarget(
+            name: "UIObservationBindingTests",
+            dependencies: ["UIObservationBinding", "TestSupport"],
+            swiftSettings: strict
+        ),
     ],
     swiftLanguageModes: [.v6]
 )
