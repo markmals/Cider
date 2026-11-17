@@ -1,5 +1,4 @@
 import Foundation
-import Observation
 
 enum BindingKey: Hashable {
     case value(AnyKeyPath)
@@ -10,33 +9,17 @@ enum BindingKey: Hashable {
 /// when the object deallocates.
 @MainActor
 final class BindingStore {
-    private var keyed: [BindingKey: (observation: BindingObservation, writeBack: AnyObject?)] = [:]
+    private var keyed: [BindingKey: (observation: AnyObject, writeBack: AnyObject?)] = [:]
     private var unkeyed: [AnyObject] = []
 
     /// Replaces the binding for `key`. Releasing the earlier one ends its observation and, if
     /// it was two-way, whatever wrote the control's value back.
-    func set(_ observation: BindingObservation, writeBack: AnyObject?, for key: BindingKey) {
+    func set(_ observation: AnyObject, writeBack: AnyObject?, for key: BindingKey) {
         keyed[key] = (observation, writeBack)
     }
 
     func add(_ part: AnyObject) {
         unkeyed.append(part)
-    }
-}
-
-/// Runs an update under continuous observation until released.
-final class BindingObservation {
-    private var token: ObservationTracking.Token?
-
-    @MainActor
-    init(_ update: @escaping @MainActor () -> Void) {
-        let observation = WeakReference(self)
-        token = withContinuousObservation(options: [.willSet]) { _ in
-            // Releasing the token doesn't stop the callback for a change that was already
-            // pending, so a binding that has been replaced must ignore it.
-            guard observation.value != nil else { return }
-            update()
-        }
     }
 }
 

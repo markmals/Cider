@@ -77,18 +77,17 @@ extension ObservationBindable {
         bindingStore.set(observe(value, apply), writeBack: writeBack, for: key)
     }
 
+    /// Applies `value` now and after each change to what it read, for as long as the returned
+    /// observation is alive.
     @MainActor
     private func observe<Value>(
         _ value: @escaping @MainActor () -> Value,
         _ apply: @escaping @MainActor (Self, Value) -> Void
-    ) -> BindingObservation {
-        // Continuous observation delivers its first value on a later turn; apply it now so a new
-        // control is complete before anyone measures or shows it.
-        apply(self, value())
+    ) -> AnyObject {
         let object = WeakReference(self)
-        return BindingObservation {
+        return BindingObservation(value) { newValue in
             guard let object = object.value else { return }
-            apply(object, value())
+            apply(object, newValue)
         }
     }
 }

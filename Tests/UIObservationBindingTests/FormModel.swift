@@ -23,3 +23,10 @@ final class WriteCounter: NSObject {
         didSet { writes += 1 }
     }
 }
+
+/// Counts how often a binding evaluated its expression and applied the result.
+@MainActor
+final class Tally {
+    var evaluations = 0
+    var applications = 0
+}

@@ -69,6 +69,41 @@ struct BindingTests {
         #expect(counter.writes == 2)
     }
 
+    @Test("a binding evaluates and applies once when made, then once for each change")
+    func evaluatesOncePerChange() async {
+        let model = FormModel()
+        let counter = WriteCounter()
+        let tally = Tally()
+        func count() -> Int {
+            tally.evaluations += 1
+            return model.count
+        }
+        counter.bind(to: count()) { _, _ in tally.applications += 1 }
+        await settle()
+        #expect(tally.evaluations == 1)
+        #expect(tally.applications == 1)
+
+        model.count = 1
+        await wait { tally.applications == 2 }
+        await settle()
+        #expect(tally.evaluations == 2)
+        #expect(tally.applications == 2)
+    }
+
+    @Test("a change made while applying isn't lost")
+    func changeDuringApply() async {
+        let model = FormModel()
+        let counter = WriteCounter()
+        // Stands in for a control that adjusts the value it's given and writes the result back.
+        counter.bind(to: model.count) { counter, count in
+            counter.text = "\(count)"
+            if count == 0 { model.count = 1 }
+        }
+
+        await wait { counter.text == "1" }
+        #expect(counter.text == "1")
+    }
+
     @Test("doesn't keep its object alive, and ends when the object goes")
     func objectLifetime() async {
         let model = FormModel()
