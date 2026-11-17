@@ -84,8 +84,9 @@ extension NSTextField {
 
     /// Binds the text two ways to `text`, without touching the field's `target`, `action` or
     /// `delegate`, and replaces what `init(text:)`, `bind(label:)` or an earlier call bound.
-    /// Changes from the binding wait while the user is composing marked text, such as an
-    /// unfinished Japanese word.
+    /// A change from the binding that arrives while the user is composing marked text, such as
+    /// an unfinished Japanese word, is dropped: the field keeps the composition, and its next
+    /// edit writes the field's text over that change.
     public func bind(text: UIBinding<String>) {
         let writeBack: @MainActor () -> Void = { [weak self] in
             guard let self else { return }

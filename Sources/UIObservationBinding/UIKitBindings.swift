@@ -86,8 +86,9 @@ extension UITextField {
     }
 
     /// Binds the text two ways to `text`, replacing what `init(text:)` or an earlier call bound.
-    /// Changes from the binding wait while the user is composing marked text, such as an
-    /// unfinished Japanese word.
+    /// A change from the binding that arrives while the user is composing marked text, such as
+    /// an unfinished Japanese word, is dropped: the field keeps the composition, and its next
+    /// edit writes the field's text over that change.
     public func bind(text: UIBinding<String>) {
         let writeBack = WriteBackAction(on: self, for: .editingChanged) { [weak self] in
             guard let self else { return }

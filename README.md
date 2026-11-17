@@ -23,6 +23,8 @@ Every module builds for macOS, iOS, tvOS, visionOS and Mac Catalyst, with the pl
 .product(name: "UIObservationBinding", package: "Cider")  // import UIObservationBinding
 ```
 
+Models are expected to be `@MainActor`. `updateProperties()` and bindings read them on the main actor, and a change made off it while one of those is reading goes unnoticed until something it read changes again.
+
 ## CocoaObservation
 
 UIKit on iOS, tvOS, and visionOS 26 already tracks the `@Observable` properties read in `updateProperties()`. AppKit has no equivalent, so subclass `ObservingViewController` or `ObservingView` and override `updateProperties()`:
