@@ -41,10 +41,10 @@ final class RecipeViewController: ObservingViewController {
 }
 ```
 
-The properties read in `updateProperties()` are its dependencies. Changing one re-runs it on a later main-actor turn, and synchronous changes coalesce into a single update. That turn comes from SE-0506 continuous observation and isn't tied to the layout pass, so keep geometry in `layout()` and `viewWillLayout()`.
+The properties read in `updateProperties()` are its dependencies. Changing one re-runs it on a later main-actor turn, and synchronous changes coalesce into a single update. That turn comes from SE-0506 observation tracking and isn't tied to the layout pass, so keep geometry in `layout()` and `viewWillLayout()`.
 
 - A controller observes from `viewDidLoad()` until it deallocates. A view observes only while it's in a window, and moving it back into one renders the latest state.
-- `setNeedsUpdateProperties()` schedules an update with no model change. `updatePropertiesIfNeeded()` runs a pending update synchronously, for example to paint current state before revealing a view. A model change on its own isn't pending for `updatePropertiesIfNeeded()`; it arrives asynchronously.
+- `setNeedsUpdateProperties()` schedules an update with no model change. `updatePropertiesIfNeeded()` runs a pending update synchronously, for example to paint current state before revealing a view; that update tracks what it reads, so the next turn doesn't repeat it. A model change on its own isn't pending for `updatePropertiesIfNeeded()`; it arrives asynchronously.
 - `updateProperties()` should only copy model state into views. Don't do I/O, start tasks, or write to the observed model there.
 
 ## UIObservationBinding

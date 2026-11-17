@@ -102,6 +102,54 @@ struct ObservingViewControllerTests {
         #expect(controller.renders.last == 8)
     }
 
+    @Test("a flush is the only render it causes, and it tracks what it read")
+    func flushRendersOnceAndTracks() async {
+        let model = ProbeModel()
+        let controller = ProbeController(model: model)
+        controller.loadViewIfNeeded()
+        controller.updatePropertiesIfNeeded()
+        await settle()
+        #expect(controller.renders == [0])
+
+        controller.setNeedsUpdateProperties()
+        controller.updatePropertiesIfNeeded()
+        await settle()
+        #expect(controller.renders == [0, 0])
+
+        model.value = 1
+        await wait { controller.renders.last == 1 }
+        await settle()
+        #expect(controller.renders == [0, 0, 1])
+    }
+
+    @Test("a change that a flush has already rendered isn't rendered again")
+    func flushCoversPendingChange() async {
+        let model = ProbeModel()
+        let controller = ProbeController(model: model)
+        controller.loadViewIfNeeded()
+        await wait { controller.renders == [0] }
+
+        model.value = 7
+        controller.setNeedsUpdateProperties()
+        controller.updatePropertiesIfNeeded()
+        await settle()
+        #expect(controller.renders == [0, 7])
+    }
+
+    @Test("repeated invalidations coalesce into one update")
+    func coalescesInvalidations() async {
+        let controller = ProbeController(model: ProbeModel())
+        controller.loadViewIfNeeded()
+        await wait { controller.renders == [0] }
+
+        controller.setNeedsUpdateProperties()
+        controller.setNeedsUpdateProperties()
+        controller.setNeedsUpdateProperties()
+        await wait { controller.renders.count == 2 }
+        await settle()
+        #expect(controller.renders == [0, 0])
+    }
+
     @Test("an invalidation requested during an update isn't lost")
     func reentrantInvalidation() async {
         let controller = ProbeController(model: ProbeModel())

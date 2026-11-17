@@ -38,6 +38,7 @@ final class ProbeController: ObservingViewController {
 
 final class ProbeView: ObservingView {
     let model: ProbeModel
+    var afterRender: ((ProbeView) -> Void)?
     private(set) var renders: [Int] = []
 
     init(model: ProbeModel) {
@@ -50,6 +51,7 @@ final class ProbeView: ObservingView {
     override func updateProperties() {
         super.updateProperties()
         renders.append(model.value)
+        afterRender?(self)
     }
 }
 
