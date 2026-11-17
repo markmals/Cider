@@ -53,6 +53,24 @@ struct LayoutTests {
         #expect(child.frame.size == NSSize(width: 30, height: 84))
     }
 
+    @Test("frame called again changes the size it fixed instead of adding constraints")
+    func frameUpdatesItsOwnConstraints() {
+        let container = makeContainer()
+        let child = NSView()
+        container.addSubview(child)
+
+        child.frame(48)
+        child.frame(width: 60)
+        child.layout {
+            $0.topAnchor == container.topAnchor
+            $0.leadingAnchor == container.leadingAnchor
+        }
+        container.layoutSubtreeIfNeeded()
+
+        #expect(child.frame.size == NSSize(width: 60, height: 48))
+        #expect(child.constraints.count == 2)
+    }
+
     @Test("relation operators keep the relation, sign, and priority")
     func relationOperators() {
         let first = NSView()

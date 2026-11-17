@@ -105,7 +105,7 @@ avatar.frame(48)
 content.pin(to: container, insets: .init(top: 8, leading: 16, bottom: 8, trailing: 16))
 ```
 
-`layout { }` turns off `translatesAutoresizingMaskIntoConstraints` and activates the constraints it builds. `pin(to:insets:)` takes `NSDirectionalEdgeInsets`, so leading and trailing insets flip in right-to-left layouts, and `pinned(to:insets:)` returns the view to end a construction chain. Set a priority with `~` before activation; switching an active constraint between required and optional throws.
+`layout { }` turns off `translatesAutoresizingMaskIntoConstraints` and activates the constraints it builds. `frame(width:height:)` fixes a size, and calling it again changes that size rather than adding constraints. `pin(to:insets:)` takes `NSDirectionalEdgeInsets`, so leading and trailing insets flip in right-to-left layouts, and `pinned(to:insets:)` returns the view to end a construction chain; each call adds its four constraints, so pin a view once. Set a priority with `~` before activation; switching an active constraint between required and optional throws.
 
 Stack views take their arranged subviews from a result builder that accepts views, arrays, `if`/`else` and `for` loops:
 

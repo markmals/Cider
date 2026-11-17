@@ -20,12 +20,25 @@ extension LayoutView {
         return self
     }
 
-    /// Fixes the width, the height, or both; a `nil` dimension stays unconstrained.
+    /// Fixes the width, the height, or both, and leaves a `nil` dimension as it is. Calling it
+    /// again changes the size it fixed earlier instead of adding a second constraint.
     @discardableResult
     public func frame(width: CGFloat? = nil, height: CGFloat? = nil) -> Self {
-        layout {
-            if let width { $0.widthAnchor == width }
-            if let height { $0.heightAnchor == height }
+        translatesAutoresizingMaskIntoConstraints = false
+        if let width { fix(widthAnchor, at: width, identifier: "Layout.frame.width") }
+        if let height { fix(heightAnchor, at: height, identifier: "Layout.frame.height") }
+        return self
+    }
+
+    /// Sets the constant of the constraint this view holds under `identifier`, adding that
+    /// constraint the first time.
+    private func fix(_ dimension: NSLayoutDimension, at constant: CGFloat, identifier: String) {
+        if let fixed = constraints.first(where: { $0.identifier == identifier }) {
+            fixed.constant = constant
+        } else {
+            let constraint = dimension.constraint(equalToConstant: constant)
+            constraint.identifier = identifier
+            constraint.isActive = true
         }
     }
 
@@ -35,7 +48,8 @@ extension LayoutView {
     }
 
     /// Constrains all four edges to `other`'s, inset by `insets`. Leading and trailing follow
-    /// the user interface layout direction.
+    /// the user interface layout direction. Every call adds four constraints, so pin a view
+    /// once.
     public func pin(to other: LayoutView, insets: NSDirectionalEdgeInsets = .init()) {
         layout {
             $0.topAnchor == other.topAnchor + insets.top
