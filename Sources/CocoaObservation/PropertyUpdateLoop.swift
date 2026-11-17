@@ -1,13 +1,13 @@
 #if os(macOS)
 import Observation
 
-/// Runs a render closure inside an `Observations` (SE-0475) loop. The emit closure is where
-/// Observation records dependencies, so every `@Observable` property the render reads re-runs it.
+/// Runs a render closure under SE-0506 continuous observation: every `@Observable` property the
+/// render reads re-runs it on a later main-actor turn, with synchronous changes coalesced.
 @MainActor
 final class PropertyUpdateLoop {
     private let invalidation = Invalidation()
     private let render: @MainActor () -> Void
-    private var task: Task<Void, Never>?
+    private var observation: ObservationTracking.Token?
     private var needsUpdate = true
     private var isUpdating = false
 
@@ -15,26 +15,17 @@ final class PropertyUpdateLoop {
         self.render = render
     }
 
-    deinit { task?.cancel() }
-
     func start() {
-        guard task == nil else { return }
-        task = Task { @MainActor [weak self] in
-            let updates = Observations<Void, Never>.untilFinished { [weak self] in
-                guard let self else { return .finish }
-                _ = invalidation.generation
-                update()
-                return .next(())
-            }
-            for await _ in updates {
-                if Task.isCancelled { break }
-            }
+        guard observation == nil else { return }
+        observation = withContinuousObservation(options: [.willSet]) { [weak self] _ in
+            guard let self else { return }
+            _ = invalidation.generation
+            update()
         }
     }
 
     func stop() {
-        task?.cancel()
-        task = nil
+        observation = nil
         // Changes made while stopped go unobserved, so a flush before the restarted loop's first
         // turn must still render.
         needsUpdate = true
@@ -57,8 +48,8 @@ final class PropertyUpdateLoop {
         render()
         isUpdating = false
         if needsUpdate {
-            // A bump inside the emit closure fires before the loop tracks the generation it just
-            // read, so the request would be lost; bump on a later turn instead.
+            // A bump inside the observation closure fires before tracking of the generation it
+            // just read is installed, so the request would be lost; bump on a later turn instead.
             Task { @MainActor [weak self] in self?.invalidation.bump() }
         }
     }

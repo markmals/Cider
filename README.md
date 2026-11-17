@@ -4,7 +4,7 @@ Swift packages for building UIKit and AppKit apps. Each module is its own librar
 
 | Module | Platforms | Use |
 | --- | --- | --- |
-| `CocoaObservation` | macOS 26+ | `ObservingViewController` and `ObservingView`, AppKit versions of UIKit's `updateProperties()` hook for `@Observable` models. |
+| `CocoaObservation` | macOS 27+ | `ObservingViewController` and `ObservingView`, AppKit versions of UIKit's `updateProperties()` hook for `@Observable` models. |
 | `Layout` | macOS, iOS, tvOS, visionOS, Mac Catalyst | An Auto Layout DSL: anchor operators, a constraint result builder, and `layout`, `frame`, and `pin` helpers for views. |
 | `Cider` | iOS, tvOS, Mac Catalyst | Legacy UIKit and Combine helpers from 2023, kept for reference until each piece is either modernized or removed. It builds only in the Swift 5 language mode, and it fails to build for tvOS. |
 
@@ -36,7 +36,7 @@ final class RecipeViewController: ObservingViewController {
 }
 ```
 
-The properties read in `updateProperties()` are its dependencies. Changing one re-runs it on a later main-actor turn, and synchronous changes coalesce into a single update. That turn comes from an `Observations` loop and isn't tied to the layout pass, so keep geometry in `layout()` and `viewWillLayout()`.
+The properties read in `updateProperties()` are its dependencies. Changing one re-runs it on a later main-actor turn, and synchronous changes coalesce into a single update. That turn comes from SE-0506 continuous observation and isn't tied to the layout pass, so keep geometry in `layout()` and `viewWillLayout()`.
 
 - A controller observes from `viewDidLoad()` until it deallocates. A view observes only while it's in a window, and moving it back into one renders the latest state.
 - `setNeedsUpdateProperties()` schedules an update with no model change. `updatePropertiesIfNeeded()` runs a pending update synchronously, for example to paint current state before revealing a view. A model change on its own isn't pending for `updatePropertiesIfNeeded()`; it arrives asynchronously.
