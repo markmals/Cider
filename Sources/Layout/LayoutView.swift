@@ -36,14 +36,20 @@ extension LayoutView {
 
     /// Constrains all four edges to `other`'s, inset by `insets`. Leading and trailing follow
     /// the user interface layout direction.
-    @discardableResult
-    public func pin(to other: LayoutView, insets: NSDirectionalEdgeInsets = .init()) -> Self {
+    public func pin(to other: LayoutView, insets: NSDirectionalEdgeInsets = .init()) {
         layout {
             $0.topAnchor == other.topAnchor + insets.top
             $0.bottomAnchor == other.bottomAnchor - insets.bottom
             $0.leadingAnchor == other.leadingAnchor + insets.leading
             $0.trailingAnchor == other.trailingAnchor - insets.trailing
         }
+    }
+
+    /// `pin(to:insets:)`, returning this view so the call can end a construction chain.
+    @discardableResult
+    public func pinned(to other: LayoutView, insets: NSDirectionalEdgeInsets = .init()) -> Self {
+        pin(to: other, insets: insets)
+        return self
     }
 }
 #endif
