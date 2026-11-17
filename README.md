@@ -1,9 +1,10 @@
 # Cider
 
-Swift packages for building UIKit and AppKit apps around `@Observable` models. Each module is its own library product, so a target imports only what it uses.
+Swift packages for building UIKit and AppKit apps around `@Observable` models. Each module is its own library product, so a target imports only what it uses, and the `Cider` product re-exports all of them for a target that wants everything.
 
 | Module | Platforms | Use |
 | --- | --- | --- |
+| `Cider` | All | Re-exports every module below except `CiderLegacy`, so `import Cider` brings them all in. |
 | `CocoaObservation` | macOS | `ObservingViewController` and `ObservingView`, AppKit versions of UIKit's `updateProperties()` hook. |
 | `UIObservationBinding` | macOS, iOS, tvOS, visionOS, Mac Catalyst | Solid-style bindings from `@Observable` state to individual control properties, one way or two. |
 | `Layout` | macOS, iOS, tvOS, visionOS, Mac Catalyst | An Auto Layout DSL, plus result-builder stack views. |
@@ -12,14 +13,15 @@ Swift packages for building UIKit and AppKit apps around `@Observable` models. E
 | `HexColor` | macOS, iOS, tvOS, visionOS, Mac Catalyst | `UIColor`, `NSColor` and SwiftUI `Color` from a `0xRRGGBB` literal. |
 | `CiderLegacy` | iOS, Mac Catalyst | Legacy UIKit and Combine helpers from 2023, kept for reference until each piece is either modernized or removed. |
 
-Cider needs Swift 6.4 tools and OS 27. Add the package and depend on the products you need:
+Cider needs Swift 6.4 tools and OS 27. Add the package, then depend on `Cider` for everything or on the individual products you need:
 
 ```swift
 .package(url: "https://github.com/markmals/Cider", branch: "main")
 ```
 
 ```swift
-.product(name: "UIObservationBinding", package: "Cider")
+.product(name: "Cider", package: "Cider")                 // import Cider
+.product(name: "UIObservationBinding", package: "Cider")  // import UIObservationBinding
 ```
 
 ## CocoaObservation

@@ -6,6 +6,7 @@ Cider is a SwiftPM package of independently importable modules for UIKit and App
 
 | Module | Imports | Holds |
 | --- | --- | --- |
+| `Cider` | Every module below except `CiderLegacy` | Only `@_exported import`s, one per product |
 | `CocoaObservation` | AppKit, Observation | `ObservingViewController`, `ObservingView`: AppKit's missing `updateProperties()` |
 | `UIObservationBinding` | UIKit or AppKit, Observation | Autoclosure bindings from `@Observable` state to control properties |
 | `Layout` | UIKit or AppKit | Constraint operators, `ConstraintBuilder`, view helpers, stack view builders |
@@ -14,6 +15,7 @@ Cider is a SwiftPM package of independently importable modules for UIKit and App
 | `HexColor` | UIKit or AppKit, SwiftUI | Hex color initializers |
 
 - Modules don't depend on each other. Add a dependency only when a module genuinely needs another's API, and say why in the commit.
+- A new product needs a line in `Sources/Cider/Cider.swift` and a dependency on the `Cider` target. `mise run lint` fails until both exist. `CiderLegacy` stays out, because its constraint operators clash with `Layout`'s.
 - `LatestTask` stays free of UI frameworks, because domain and feature targets import it. The module and its main type share a name, so qualify the type as `LatestTask::LatestTask` when it's ambiguous.
 - `CocoaObservation` stays AppKit-only. UIKit has a native `updateProperties()` on OS 26 and later, so don't build a UIKit version.
 - The `CiderLegacy` target, `Herald/` and `PodcastExample/` are frozen legacy code kept for reference. Don't edit, format or extend them. Bring a piece forward by porting it into a modern module, and only with the owner's agreement.

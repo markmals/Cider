@@ -52,9 +52,24 @@ run = "swift format --in-place --recursive --parallel {{vars.formatted}}"
 
 [tasks.lint]
 alias = "l"
-description = "Lint Swift sources and GitHub workflows"
+description = "Lint Swift sources, GitHub workflows, and the Cider module's re-exports"
 # --strict: without it swift-format reports findings as warnings and still exits 0.
 run = [
     "swift format lint --strict --recursive --parallel {{vars.formatted}}",
     "actionlint",
+    "mise run lint:exports",
 ]
+
+[tasks."lint:exports"]
+description = "Check that Sources/Cider/Cider.swift re-exports every product except Cider and CiderLegacy"
+run = '''
+set -euo pipefail
+expected=$(swift package dump-package \
+  | jq -r '.products[].name | select(. != "Cider" and . != "CiderLegacy")' | sort)
+actual=$(sed -n 's/^@_exported import //p' Sources/Cider/Cider.swift | sort)
+if [ "$expected" != "$actual" ]; then
+  echo "Sources/Cider/Cider.swift must re-export exactly these products:" >&2
+  echo "$expected" >&2
+  exit 1
+fi
+'''
